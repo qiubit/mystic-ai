@@ -1,9 +1,11 @@
-import axios from 'axios';
+// Using require instead of import for better compatibility with Vercel serverless functions
+const axios = require('axios');
 
 // Together.ai API service for Llama-3.3-70B-Instruct-Turbo
 const TOGETHER_API_URL = 'https://api.together.xyz/v1/completions';
 
-export default async function handler(req, res) {
+// Using module.exports instead of export default for better compatibility with Vercel
+module.exports = async function handler(req, res) {
   // Only allow POST requests
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
@@ -12,6 +14,11 @@ export default async function handler(req, res) {
   try {
     // Get API key from environment variable
     const TOGETHER_API_KEY = process.env.TOGETHER_API_KEY;
+    
+    // Log server environment for debugging
+    console.log('Node version:', process.version);
+    console.log('API key configured:', TOGETHER_API_KEY ? 'Yes' : 'No');
+    console.log('Available environment variables:', Object.keys(process.env).filter(key => !key.includes('KEY') && !key.includes('SECRET')));
     
     if (!TOGETHER_API_KEY) {
       return res.status(500).json({ error: 'API key not configured on server' });
@@ -62,9 +69,13 @@ Please provide a detailed and insightful tarot reading based on these three card
     return res.status(200).json({ reading: response.data.choices[0].text.trim() });
   } catch (error) {
     console.error('Error generating tarot reading:', error);
+    // Log full error details including stack trace
+    console.error(error.stack);
+    
     return res.status(500).json({ 
       error: 'Failed to generate reading',
-      message: error.message 
+      message: error.message,
+      stack: error.stack
     });
   }
 }

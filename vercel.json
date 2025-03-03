@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "functions": {
+    "api/tarot-reading.js": {
+      "memory": 1024,
+      "maxDuration": 10
+    }
+  },
+  "routes": [
+    {
+      "src": "/api/tarot-reading",
+      "dest": "/api/tarot-reading.js"
+    }
+  ]
+}
