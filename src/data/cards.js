@@ -1,39 +1,39 @@
 // Simplified tarot card data
 export const tarotCards = [
   {
-    id: 'fool',
-    name: 'The Fool',
-    image: '/images/fool.jpg',
-    uprightMeaning: 'New beginnings, innocence, spontaneity',
-    reversedMeaning: 'Recklessness, risk-taking, bad decisions'
+    id: "fool",
+    name: "The Fool",
+    image: "/images/fool.jpg",
+    uprightMeaning: "New beginnings, innocence, spontaneity",
+    reversedMeaning: "Recklessness, risk-taking, bad decisions",
   },
   {
-    id: 'magician',
-    name: 'The Magician',
-    image: '/images/magician.jpg',
-    uprightMeaning: 'Manifestation, resourcefulness, power',
-    reversedMeaning: 'Manipulation, untapped talents, poor planning'
+    id: "magician",
+    name: "The Magician",
+    image: "/images/magician.jpg",
+    uprightMeaning: "Manifestation, resourcefulness, power",
+    reversedMeaning: "Manipulation, untapped talents, poor planning",
   },
   {
-    id: 'high-priestess',
-    name: 'The High Priestess',
-    image: '/images/high-priestess.jpg',
-    uprightMeaning: 'Intuition, unconscious, inner voice',
-    reversedMeaning: 'Secrets, disconnection, withdrawal'
+    id: "high-priestess",
+    name: "The High Priestess",
+    image: "/images/high-priestess.jpg",
+    uprightMeaning: "Intuition, unconscious, inner voice",
+    reversedMeaning: "Secrets, disconnection, withdrawal",
   },
   {
-    id: 'empress',
-    name: 'The Empress',
-    image: '/images/empress.jpg',
-    uprightMeaning: 'Femininity, beauty, abundance',
-    reversedMeaning: 'Creative block, dependence, emptiness'
+    id: "empress",
+    name: "The Empress",
+    image: "/images/empress.jpg",
+    uprightMeaning: "Femininity, beauty, abundance",
+    reversedMeaning: "Creative block, dependence, emptiness",
   },
   {
-    id: 'emperor',
-    name: 'The Emperor',
-    image: '/images/emperor.jpg',
-    uprightMeaning: 'Authority, structure, control',
-    reversedMeaning: 'Domination, rigidity, lack of discipline'
+    id: "emperor",
+    name: "The Emperor",
+    image: "/images/emperor.jpg",
+    uprightMeaning: "Authority, structure, control",
+    reversedMeaning: "Domination, rigidity, lack of discipline",
   },
   // Add more cards as needed
 ];
@@ -45,28 +45,31 @@ export const shuffleCards = () => {
 
 // Different spread types
 export const spreadTypes = {
-  SINGLE: 'single',
-  TWO_CARD: 'two-card',
-  THREE_CARD: 'three-card',
+  SINGLE: "single",
+  TWO_CARD: "two-card",
+  THREE_CARD: "three-card",
 };
 
 // Function to determine appropriate spread based on query
 export const determineSpread = (query) => {
   // Simple logic for demo purposes - would be replaced by AI logic
-  if (query.includes('future') || query.includes('path')) {
-    return spreadTypes.THREE_CARD;
-  } else if (query.includes('choice') || query.includes('decision')) {
-    return spreadTypes.TWO_CARD;
-  } else {
-    return spreadTypes.SINGLE;
-  }
+  // if (query.includes('future') || query.includes('path')) {
+  //   return spreadTypes.THREE_CARD;
+  // } else if (query.includes('choice') || query.includes('decision')) {
+  //   return spreadTypes.TWO_CARD;
+  // } else {
+  //   return spreadTypes.SINGLE;
+  // }
+
+  // Only three card spread for now for testing purposes
+  return spreadTypes.THREE_CARD;
 };
 
 // Generate placeholder reading
 export const generateReading = (cards, spreadType, query) => {
   // This would be replaced by actual AI-generated content
   let reading = `Based on your query: "${query}"\n\n`;
-  
+
   if (spreadType === spreadTypes.SINGLE) {
     reading += `Your card is ${cards[0].name}.\n`;
     reading += `This signifies ${cards[0].uprightMeaning}.\n`;
@@ -83,6 +86,6 @@ export const generateReading = (cards, spreadType, query) => {
     reading += `Future: ${cards[2].name} - ${cards[2].uprightMeaning}\n`;
     reading += `This spread suggests a journey from ${cards[0].uprightMeaning} through current ${cards[1].uprightMeaning} leading ultimately to ${cards[2].uprightMeaning}.`;
   }
-  
+
   return reading;
 };
