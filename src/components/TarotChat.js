@@ -1,59 +1,72 @@
 // TarotChat.js - Main chat interface component
-import React, { useState, useRef, useEffect } from 'react';
-import TarotDeck from './TarotDeck';
-import ApiKeyForm from './ApiKeyForm';
-import { determineSpread } from '../data/cards';
-import { generateTarotReading } from '../services/api';
+import React, { useState, useRef, useEffect } from "react";
+import TarotDeck from "./TarotDeck";
+import ApiKeyForm from "./ApiKeyForm";
+import { determineSpread } from "../data/cards";
+import { generateTarotReading, isApiKeySet } from "../services/api";
 
 const TarotChat = () => {
   const [messages, setMessages] = useState([
-    { role: 'assistant', content: 'Welcome to Mystic AI. What would you like to know about your future, relationships, or career?' }
+    {
+      role: "assistant",
+      content:
+        "Welcome to Mystic AI. What would you like to know about your future, relationships, or career?",
+    },
   ]);
-  const [input, setInput] = useState('');
+  const [input, setInput] = useState("");
   const [isWaitingForCards, setIsWaitingForCards] = useState(false);
   const [isGeneratingReading, setIsGeneratingReading] = useState(false);
   const [currentSpreadType, setCurrentSpreadType] = useState(null);
-  const [currentQuery, setCurrentQuery] = useState('');
-  const [hasApiKey, setHasApiKey] = useState(false);
+  const [currentQuery, setCurrentQuery] = useState("");
+  const [hasApiKey, setHasApiKey] = useState(isApiKeySet());
   const messagesEndRef = useRef(null);
 
   // Auto-scroll to bottom of chat
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    
+
     if (!hasApiKey) {
-      setMessages(prev => [...prev, { 
-        role: 'error', 
-        content: 'Please set your Together.ai API key first to continue.' 
-      }]);
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "error",
+          content: "Please set your Together.ai API key first to continue.",
+        },
+      ]);
       return;
     }
-    
+
     if (!input.trim()) return;
 
     // Add user message
-    const userMessage = { role: 'user', content: input };
+    const userMessage = { role: "user", content: input };
     setMessages([...messages, userMessage]);
-    
+
     // Store the query for the reading
     setCurrentQuery(input);
-    setInput('');
+    setInput("");
 
     // Determine spread type based on query
     const spreadType = determineSpread(input);
     setCurrentSpreadType(spreadType);
-    
+
     // Add thinking message
     setTimeout(() => {
-      setMessages(prev => [...prev, { 
-        role: 'assistant', 
-        content: `I'm sensing an energy around your question. Let me consult the cards with a ${spreadType.replace('-', ' ')} spread.` 
-      }]);
-      
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: "assistant",
+          content: `I'm sensing an energy around your question. Let me consult the cards with a ${spreadType.replace(
+            "-",
+            " "
+          )} spread.`,
+        },
+      ]);
+
       // Start card selection process
       setIsWaitingForCards(true);
     }, 1000);
@@ -62,37 +75,48 @@ const TarotChat = () => {
   const handleCardsSelected = async (selectedCards) => {
     setIsWaitingForCards(false);
     setIsGeneratingReading(true);
-    
+
     // Add card display message
-    setMessages(prev => [...prev, { 
-      role: 'cards', 
-      content: selectedCards.map(card => card.name).join(', '),
-      cards: selectedCards 
-    }]);
-    
+    setMessages((prev) => [
+      ...prev,
+      {
+        role: "cards",
+        content: selectedCards.map((card) => card.name).join(", "),
+        cards: selectedCards,
+      },
+    ]);
+
     // Add loading message
-    setMessages(prev => [...prev, { 
-      role: 'assistant', 
-      content: 'Reading the cards and channeling the energies...' 
-    }]);
-    
+    setMessages((prev) => [
+      ...prev,
+      {
+        role: "assistant",
+        content: "Reading the cards and channeling the energies...",
+      },
+    ]);
+
     try {
       // Generate AI reading using Together.ai
-      const reading = await generateTarotReading(selectedCards, currentSpreadType, currentQuery);
-      
+      const reading = await generateTarotReading(
+        selectedCards,
+        currentSpreadType,
+        currentQuery
+      );
+
       // Update the loading message with the actual reading
-      setMessages(prev => [
-        ...prev.slice(0, prev.length - 1), 
-        { role: 'assistant', content: reading }
+      setMessages((prev) => [
+        ...prev.slice(0, prev.length - 1),
+        { role: "assistant", content: reading },
       ]);
     } catch (error) {
-      console.error('Error generating reading:', error);
-      setMessages(prev => [
-        ...prev.slice(0, prev.length - 1), 
-        { 
-          role: 'error', 
-          content: 'I am unable to interpret the cards at this moment. The spiritual connection is unclear.' 
-        }
+      console.error("Error generating reading:", error);
+      setMessages((prev) => [
+        ...prev.slice(0, prev.length - 1),
+        {
+          role: "error",
+          content:
+            "I am unable to interpret the cards at this moment. The spiritual connection is unclear.",
+        },
       ]);
     } finally {
       setIsGeneratingReading(false);
@@ -105,14 +129,12 @@ const TarotChat = () => {
 
   return (
     <div className="tarot-chat">
-      {!hasApiKey && (
-        <ApiKeyForm onApiKeySet={handleApiKeySet} />
-      )}
-      
+      {!hasApiKey && <ApiKeyForm onApiKeySet={handleApiKeySet} />}
+
       <div className="chat-messages">
         {messages.map((message, index) => (
           <div key={index} className={`message ${message.role}`}>
-            {message.role === 'cards' ? (
+            {message.role === "cards" ? (
               <div className="card-spread">
                 {message.cards.map((card, i) => (
                   <div key={i} className="spread-card">
@@ -128,11 +150,11 @@ const TarotChat = () => {
         ))}
         <div ref={messagesEndRef} />
       </div>
-      
+
       {isWaitingForCards ? (
-        <TarotDeck 
-          spreadType={currentSpreadType} 
-          onCardsSelected={handleCardsSelected} 
+        <TarotDeck
+          spreadType={currentSpreadType}
+          onCardsSelected={handleCardsSelected}
         />
       ) : (
         <form onSubmit={handleSubmit} className="chat-input-form">
@@ -143,8 +165,8 @@ const TarotChat = () => {
             placeholder="Ask the cards..."
             disabled={isWaitingForCards || isGeneratingReading}
           />
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             disabled={isWaitingForCards || isGeneratingReading || !input.trim()}
           >
             Ask

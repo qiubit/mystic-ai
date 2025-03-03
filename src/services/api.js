@@ -10,6 +10,10 @@ export const setApiKey = (key) => {
   TOGETHER_API_KEY = key;
 };
 
+export const isApiKeySet = () => {
+  return TOGETHER_API_KEY != null && TOGETHER_API_KEY.length > 0;
+};
+
 export const generateTarotReading = async (cards, spreadType, query) => {
   if (!TOGETHER_API_KEY) {
     throw new Error("Together API key is not set");
