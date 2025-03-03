@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect } from "react";
 import TarotDeck from "./TarotDeck";
 import ApiKeyForm from "./ApiKeyForm";
 import { determineSpread } from "../data/cards";
-import { generateTarotReading, isApiKeySet } from "../services/api";
+import { generateTarotReading } from "../services/api";
 
 const TarotChat = () => {
   const [messages, setMessages] = useState([
@@ -18,7 +18,7 @@ const TarotChat = () => {
   const [isGeneratingReading, setIsGeneratingReading] = useState(false);
   const [currentSpreadType, setCurrentSpreadType] = useState(null);
   const [currentQuery, setCurrentQuery] = useState("");
-  const [hasApiKey, setHasApiKey] = useState(isApiKeySet());
+  const [hasApiKey, setHasApiKey] = useState(true);
   const messagesEndRef = useRef(null);
 
   // Auto-scroll to bottom of chat
@@ -28,17 +28,6 @@ const TarotChat = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    if (!hasApiKey) {
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "error",
-          content: "Please set your Together.ai API key first to continue.",
-        },
-      ]);
-      return;
-    }
 
     if (!input.trim()) return;
 
@@ -129,7 +118,6 @@ const TarotChat = () => {
 
   return (
     <div className="tarot-chat">
-      {!hasApiKey && <ApiKeyForm onApiKeySet={handleApiKeySet} />}
 
       <div className="chat-messages">
         {messages.map((message, index) => (

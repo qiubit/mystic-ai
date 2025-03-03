@@ -8,15 +8,15 @@ A tarot reading application that combines interactive tarot card selection with 
 - AI automatically determines the appropriate spread (1, 2, or 3 cards)
 - Interactive card shuffling and selection animation
 - AI-powered tarot readings generated using Together.ai and Llama-3.3-70B-Instruct-Turbo
-- Secure API key handling
+- Secure server-side API key handling for Vercel deployment
 
 ## How it Works
 
-1. The user enters their Together.ai API key
-2. The user enters a question or topic they want insight on
-3. Based on the query, the app determines the most appropriate spread (single card, two-card, or three-card)
-4. The user selects cards from the deck
-5. The app sends the query and selected cards to the Llama-3.3-70B-Instruct-Turbo model via Together.ai
+1. The user enters a question or topic they want insight on
+2. Based on the query, the app determines the most appropriate spread (single card, two-card, or three-card)
+3. The user selects cards from the deck
+4. The app sends the query and selected cards to the server-side API endpoint
+5. The server securely calls the Llama-3.3-70B-Instruct-Turbo model via Together.ai using the stored API key
 6. The AI generates a personalized, detailed tarot reading based on the selected cards and the original query
 
 ## Project Structure
@@ -24,11 +24,13 @@ A tarot reading application that combines interactive tarot card selection with 
 - `src/components/` - React components
   - `TarotChat.js` - Main chat interface
   - `TarotDeck.js` - Card deck and selection animation
-  - `ApiKeyForm.js` - Component for entering Together.ai API key
+  - `ApiKeyForm.js` - (No longer used - kept for compatibility)
 - `src/data/` - Data files
   - `cards.js` - Tarot card definitions and spread logic
 - `src/services/` - API and external service integration
-  - `api.js` - Together.ai API integration for Llama-3.3-70B-Instruct-Turbo
+  - `api.js` - Client-side API service that calls the server endpoint
+- `api/` - Vercel serverless functions
+  - `tarot-reading.js` - Server-side endpoint that securely calls Together.ai API
 
 ## Getting Started
 
@@ -43,9 +45,10 @@ A tarot reading application that combines interactive tarot card selection with 
    npm install
    ```
 
-3. Set up your environment variables:
-   - Copy `.env.example` to `.env.local`
-   - Add your Together.ai API key to `.env.local`
+3. For local development, you can use a `.env.local` file:
+   ```
+   TOGETHER_API_KEY=your_together_api_key_here
+   ```
 
 4. Start the development server:
    ```
@@ -56,10 +59,9 @@ A tarot reading application that combines interactive tarot card selection with 
 
 ## Using the App
 
-1. Enter your Together.ai API key when prompted
-2. Type your question in the chat input
-3. Select cards from the deck when prompted
-4. Receive your AI-generated tarot reading!
+1. Type your question in the chat input
+2. Select cards from the deck when prompted
+3. Receive your AI-generated tarot reading!
 
 ## Technical Details
 
@@ -76,9 +78,14 @@ A tarot reading application that combines interactive tarot card selection with 
 - Implement user accounts to save API keys securely
 - Add more AI model options
 
-## Security Note
+## Deployment on Vercel
 
-This application handles API keys client-side for demonstration purposes. In a production environment, you should:
-- Implement a backend server to securely store and use API keys
-- Use environment variables for sensitive information
-- Implement proper authentication and authorization
+This app is designed to be deployed on Vercel with server-side API handling.
+
+### Environment Variables Setup
+
+When deploying to Vercel, add the following environment variable:
+
+- `TOGETHER_API_KEY`: Your Together.ai API key
+
+The API key is securely stored on the server side and never exposed to the client browser. The API requests are proxied through a Vercel serverless function in the `/api` directory.
