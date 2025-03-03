@@ -101,7 +101,7 @@ export const tarotCards = [
   {
     id: "14-temperance",
     name: "Temperance",
-    image: "/images/emperor.jpg",
+    image: "/images/temperance.jpg",
     uprightMeaning: "Balance, moderation, patience, purpose",
     reversedMeaning: "Imbalance, excess, lack of harmony",
   },
