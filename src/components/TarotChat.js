@@ -2,7 +2,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import TarotDeck from "./TarotDeck";
 import { determineSpread } from "../data/cards";
-import { generateTarotReading } from "../services/api";
+import { generateTarotReading, generateTarotReadingStream } from "../services/api";
 
 const TarotChat = () => {
   const [messages, setMessages] = useState([
@@ -78,7 +78,7 @@ const TarotChat = () => {
       },
     ]);
 
-    // Add loading message
+    // Add loading message that will be updated with streaming content
     setMessages((prev) => [
       ...prev,
       {
@@ -88,29 +88,57 @@ const TarotChat = () => {
     ]);
 
     try {
-      // Generate AI reading using Together.ai
-      const reading = await generateTarotReading(
+      // Track the accumulated streaming content
+      let streamContent = "";
+      
+      // Generate AI reading using Together.ai with streaming
+      const closeStream = await generateTarotReadingStream(
         selectedCards,
         currentSpreadType,
-        currentQuery
+        currentQuery,
+        // Handle each chunk of streamed content
+        (chunk) => {
+          streamContent += chunk;
+          // Update the message with the current accumulated content
+          setMessages((prev) => [
+            ...prev.slice(0, prev.length - 1),
+            { role: "assistant", content: streamContent },
+          ]);
+        },
+        // Handle complete formatted reading
+        (formattedReading) => {
+          // Update with the final formatted reading
+          setMessages((prev) => [
+            ...prev.slice(0, prev.length - 1),
+            { role: "assistant", content: formattedReading },
+          ]);
+          setIsGeneratingReading(false);
+        },
+        // Handle errors
+        (errorMsg) => {
+          console.error("Error generating reading:", errorMsg);
+          setMessages((prev) => [
+            ...prev.slice(0, prev.length - 1),
+            {
+              role: "error",
+              content: errorMsg || "I am unable to interpret the cards at this moment. The spiritual connection is unclear.",
+            },
+          ]);
+          setIsGeneratingReading(false);
+        }
       );
-
-      // Update the loading message with the actual reading
-      setMessages((prev) => [
-        ...prev.slice(0, prev.length - 1),
-        { role: "assistant", content: reading },
-      ]);
+      
+      // Return the closeStream function for potential cancellation
+      return closeStream;
     } catch (error) {
-      console.error("Error generating reading:", error);
+      console.error("Error initiating reading stream:", error);
       setMessages((prev) => [
         ...prev.slice(0, prev.length - 1),
         {
           role: "error",
-          content:
-            "I am unable to interpret the cards at this moment. The spiritual connection is unclear.",
+          content: "I am unable to interpret the cards at this moment. The spiritual connection is unclear.",
         },
       ]);
-    } finally {
       setIsGeneratingReading(false);
     }
   };
