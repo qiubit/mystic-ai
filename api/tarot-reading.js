@@ -1,39 +1,39 @@
 // Using require instead of import for better compatibility with Vercel serverless functions
-const axios = require('axios');
+const axios = require("axios");
 
 // Together.ai API service for Llama-3.3-70B-Instruct-Turbo
-const TOGETHER_API_URL = 'https://api.together.xyz/v1/completions';
+const TOGETHER_API_URL = "https://api.together.xyz/v1/completions";
 
 /**
  * Formats the raw reading text to make it more readable
  * Adds proper paragraphs, spacing, and formatting
  */
 function formatReadingText(text) {
-  if (!text) return '';
-  
+  if (!text) return "";
+
   // Split into paragraphs (by single or multiple newlines)
   let paragraphs = text.split(/\n+/);
-  
+
   // Process each paragraph
-  paragraphs = paragraphs.map(paragraph => {
+  paragraphs = paragraphs.map((paragraph) => {
     // Remove extra spaces and trim
-    paragraph = paragraph.trim().replace(/\s+/g, ' ');
-    
+    paragraph = paragraph.trim().replace(/\s+/g, " ");
+
     // Ensure proper capitalization for first letter of paragraph
     if (paragraph.length > 0) {
       paragraph = paragraph.charAt(0).toUpperCase() + paragraph.slice(1);
     }
-    
+
     return paragraph;
   });
-  
+
   // Filter out empty paragraphs
-  paragraphs = paragraphs.filter(p => p.length > 0);
-  
+  paragraphs = paragraphs.filter((p) => p.length > 0);
+
   // Structure the reading for better readability
   // First paragraph as introduction
   let formattedReading = paragraphs[0] + "\n\n";
-  
+
   // Middle paragraphs with bullet points for easier scanning
   if (paragraphs.length > 2) {
     for (let i = 1; i < paragraphs.length - 1; i++) {
@@ -41,7 +41,7 @@ function formatReadingText(text) {
       formattedReading += "• " + paragraphs[i] + "\n\n";
     }
   }
-  
+
   // Last paragraph as conclusion if there are at least 3 paragraphs
   if (paragraphs.length >= 3) {
     formattedReading += paragraphs[paragraphs.length - 1];
@@ -49,28 +49,35 @@ function formatReadingText(text) {
     // If only 2 paragraphs, add the second one without bullet
     formattedReading += paragraphs[1];
   }
-  
+
   return formattedReading;
 }
 
 // Using module.exports instead of export default for better compatibility with Vercel
 module.exports = async function handler(req, res) {
   // Only allow POST requests
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
   }
 
   try {
     // Get API key from environment variable
     const TOGETHER_API_KEY = process.env.TOGETHER_API_KEY;
-    
+
     // Log server environment for debugging
-    console.log('Node version:', process.version);
-    console.log('API key configured:', TOGETHER_API_KEY ? 'Yes' : 'No');
-    console.log('Available environment variables:', Object.keys(process.env).filter(key => !key.includes('KEY') && !key.includes('SECRET')));
-    
+    console.log("Node version:", process.version);
+    console.log("API key configured:", TOGETHER_API_KEY ? "Yes" : "No");
+    console.log(
+      "Available environment variables:",
+      Object.keys(process.env).filter(
+        (key) => !key.includes("KEY") && !key.includes("SECRET")
+      )
+    );
+
     if (!TOGETHER_API_KEY) {
-      return res.status(500).json({ error: 'API key not configured on server' });
+      return res
+        .status(500)
+        .json({ error: "API key not configured on server" });
     }
 
     const { cards, spreadType, query } = req.body;
@@ -116,21 +123,24 @@ Please provide a detailed and insightful tarot reading based on these three card
 
     // Get the raw reading text
     const rawReading = response.data.choices[0].text.trim();
-    
+
     // Format the reading with paragraphs and line breaks for easier reading
     const formattedReading = formatReadingText(rawReading);
-    
+
+    console.log("Query: ", query);
+    console.log("AI Response: ", formattedReading);
+
     // Return the formatted reading to the client
     return res.status(200).json({ reading: formattedReading });
   } catch (error) {
-    console.error('Error generating tarot reading:', error);
+    console.error("Error generating tarot reading:", error);
     // Log full error details including stack trace
     console.error(error.stack);
-    
-    return res.status(500).json({ 
-      error: 'Failed to generate reading',
+
+    return res.status(500).json({
+      error: "Failed to generate reading",
       message: error.message,
-      stack: error.stack
+      stack: error.stack,
     });
   }
-}
+};

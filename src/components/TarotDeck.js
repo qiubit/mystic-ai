@@ -1,6 +1,6 @@
 // TarotDeck.js - Component to handle card shuffling and selection animation
 import React, { useState, useEffect } from "react";
-import { tarotCards, shuffleCards } from "../data/cards";
+import { shuffleCards } from "../data/cards";
 
 const TarotDeck = ({ onCardsSelected, spreadType }) => {
   const [deck, setDeck] = useState([]);

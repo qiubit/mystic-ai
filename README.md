@@ -24,7 +24,6 @@ A tarot reading application that combines interactive tarot card selection with 
 - `src/components/` - React components
   - `TarotChat.js` - Main chat interface
   - `TarotDeck.js` - Card deck and selection animation
-  - `ApiKeyForm.js` - (No longer used - kept for compatibility)
 - `src/data/` - Data files
   - `cards.js` - Tarot card definitions and spread logic
 - `src/services/` - API and external service integration
