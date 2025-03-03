@@ -1,7 +1,9 @@
 // TarotChat.js - Main chat interface component
 import React, { useState, useRef, useEffect } from 'react';
 import TarotDeck from './TarotDeck';
-import { determineSpread, generateReading } from '../data/cards';
+import ApiKeyForm from './ApiKeyForm';
+import { determineSpread } from '../data/cards';
+import { generateTarotReading } from '../services/api';
 
 const TarotChat = () => {
   const [messages, setMessages] = useState([
@@ -9,8 +11,10 @@ const TarotChat = () => {
   ]);
   const [input, setInput] = useState('');
   const [isWaitingForCards, setIsWaitingForCards] = useState(false);
+  const [isGeneratingReading, setIsGeneratingReading] = useState(false);
   const [currentSpreadType, setCurrentSpreadType] = useState(null);
   const [currentQuery, setCurrentQuery] = useState('');
+  const [hasApiKey, setHasApiKey] = useState(false);
   const messagesEndRef = useRef(null);
 
   // Auto-scroll to bottom of chat
@@ -20,6 +24,15 @@ const TarotChat = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    
+    if (!hasApiKey) {
+      setMessages(prev => [...prev, { 
+        role: 'error', 
+        content: 'Please set your Together.ai API key first to continue.' 
+      }]);
+      return;
+    }
+    
     if (!input.trim()) return;
 
     // Add user message
@@ -46,8 +59,9 @@ const TarotChat = () => {
     }, 1000);
   };
 
-  const handleCardsSelected = (selectedCards) => {
+  const handleCardsSelected = async (selectedCards) => {
     setIsWaitingForCards(false);
+    setIsGeneratingReading(true);
     
     // Add card display message
     setMessages(prev => [...prev, { 
@@ -56,15 +70,45 @@ const TarotChat = () => {
       cards: selectedCards 
     }]);
     
-    // Generate and add reading
-    setTimeout(() => {
-      const reading = generateReading(selectedCards, currentSpreadType, currentQuery);
-      setMessages(prev => [...prev, { role: 'assistant', content: reading }]);
-    }, 1500);
+    // Add loading message
+    setMessages(prev => [...prev, { 
+      role: 'assistant', 
+      content: 'Reading the cards and channeling the energies...' 
+    }]);
+    
+    try {
+      // Generate AI reading using Together.ai
+      const reading = await generateTarotReading(selectedCards, currentSpreadType, currentQuery);
+      
+      // Update the loading message with the actual reading
+      setMessages(prev => [
+        ...prev.slice(0, prev.length - 1), 
+        { role: 'assistant', content: reading }
+      ]);
+    } catch (error) {
+      console.error('Error generating reading:', error);
+      setMessages(prev => [
+        ...prev.slice(0, prev.length - 1), 
+        { 
+          role: 'error', 
+          content: 'I am unable to interpret the cards at this moment. The spiritual connection is unclear.' 
+        }
+      ]);
+    } finally {
+      setIsGeneratingReading(false);
+    }
+  };
+
+  const handleApiKeySet = (status) => {
+    setHasApiKey(status);
   };
 
   return (
     <div className="tarot-chat">
+      {!hasApiKey && (
+        <ApiKeyForm onApiKeySet={handleApiKeySet} />
+      )}
+      
       <div className="chat-messages">
         {messages.map((message, index) => (
           <div key={index} className={`message ${message.role}`}>
@@ -97,9 +141,12 @@ const TarotChat = () => {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder="Ask the cards..."
-            disabled={isWaitingForCards}
+            disabled={isWaitingForCards || isGeneratingReading}
           />
-          <button type="submit" disabled={isWaitingForCards || !input.trim()}>
+          <button 
+            type="submit" 
+            disabled={isWaitingForCards || isGeneratingReading || !input.trim()}
+          >
             Ask
           </button>
         </form>
