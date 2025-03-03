@@ -1,7 +1,6 @@
 // TarotChat.js - Main chat interface component
 import React, { useState, useRef, useEffect } from "react";
 import TarotDeck from "./TarotDeck";
-import ApiKeyForm from "./ApiKeyForm";
 import { determineSpread } from "../data/cards";
 import { generateTarotReading } from "../services/api";
 
@@ -10,7 +9,7 @@ const TarotChat = () => {
     {
       role: "assistant",
       content:
-        "Welcome to Mystic AI. What would you like to know about your future, relationships, or career?",
+        "Welcome to Mystic AI—your portal to hidden insights! Please ask your question now to unlock guidance about your future, relationships, or career. Your destiny awaits!",
     },
   ]);
   const [input, setInput] = useState("");
@@ -18,7 +17,6 @@ const TarotChat = () => {
   const [isGeneratingReading, setIsGeneratingReading] = useState(false);
   const [currentSpreadType, setCurrentSpreadType] = useState(null);
   const [currentQuery, setCurrentQuery] = useState("");
-  const [hasApiKey, setHasApiKey] = useState(true);
   const messagesEndRef = useRef(null);
 
   // Auto-scroll to bottom of chat
@@ -112,13 +110,8 @@ const TarotChat = () => {
     }
   };
 
-  const handleApiKeySet = (status) => {
-    setHasApiKey(status);
-  };
-
   return (
     <div className="tarot-chat">
-
       <div className="chat-messages">
         {messages.map((message, index) => (
           <div key={index} className={`message ${message.role}`}>
@@ -132,7 +125,12 @@ const TarotChat = () => {
                 ))}
               </div>
             ) : (
-              <div className="message-content" style={{ whiteSpace: 'pre-wrap' }}>{message.content}</div>
+              <div
+                className="message-content"
+                style={{ whiteSpace: "pre-wrap" }}
+              >
+                {message.content}
+              </div>
             )}
           </div>
         ))}
