@@ -56,6 +56,11 @@ const TarotChat = () => {
 
       // Start card selection process
       setIsWaitingForCards(true);
+      
+      // Force scroll after cards appear
+      setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      }, 100);
     }, 1000);
   };
 
