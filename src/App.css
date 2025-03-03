@@ -83,6 +83,12 @@ footer {
 .message.assistant {
   background-color: #f1f1f1;
   align-self: flex-start;
+  line-height: 1.6;
+  font-size: 1.05rem;
+}
+
+.message.assistant p {
+  margin-bottom: 1rem;
 }
 
 .message.cards {

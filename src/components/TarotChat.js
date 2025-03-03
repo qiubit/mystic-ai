@@ -132,7 +132,7 @@ const TarotChat = () => {
                 ))}
               </div>
             ) : (
-              <div className="message-content">{message.content}</div>
+              <div className="message-content" style={{ whiteSpace: 'pre-wrap' }}>{message.content}</div>
             )}
           </div>
         ))}
