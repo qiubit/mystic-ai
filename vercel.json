@@ -9,10 +9,7 @@
   "routes": [
     {
       "src": "/api/tarot-reading",
-      "dest": "/api/tarot-reading.js"
-    },
-    {
-      "src": "/api/(.*)",
+      "dest": "/api/tarot-reading.js",
       "headers": {
         "Cache-Control": "no-store, no-cache",
         "Connection": "keep-alive"
