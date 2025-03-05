@@ -3,7 +3,7 @@
   "functions": {
     "api/tarot-reading.js": {
       "memory": 1024,
-      "maxDuration": 60
+      "maxDuration": 120
     }
   },
   "routes": [
