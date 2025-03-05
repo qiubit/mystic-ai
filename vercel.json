@@ -10,15 +10,14 @@
     {
       "src": "/api/tarot-reading",
       "dest": "/api/tarot-reading.js"
-    }
-  ],
-  "headers": [
+    },
     {
-      "source": "/api/(.*)",
-      "headers": [
-        { "key": "Cache-Control", "value": "no-store, no-cache" },
-        { "key": "Connection", "value": "keep-alive" }
-      ]
+      "src": "/api/(.*)",
+      "headers": {
+        "Cache-Control": "no-store, no-cache",
+        "Connection": "keep-alive"
+      },
+      "continue": true
     }
   ]
 }
