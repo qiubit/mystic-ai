@@ -1,57 +1,9 @@
 // Using require instead of import for better compatibility with Vercel serverless functions
-const axios = require("axios");
+const fetch = require("node-fetch");
+const { PassThrough } = require("stream");
 
 // Together.ai API service for Llama-3.3-70B-Instruct-Turbo
 const TOGETHER_API_URL = "https://api.together.xyz/v1/completions";
-
-/**
- * Formats the raw reading text to make it more readable
- * Adds proper paragraphs, spacing, and formatting
- */
-function formatReadingText(text) {
-  if (!text) return "";
-
-  // Split into paragraphs (by single or multiple newlines)
-  let paragraphs = text.split(/\n+/);
-
-  // Process each paragraph
-  paragraphs = paragraphs.map((paragraph) => {
-    // Remove extra spaces and trim
-    paragraph = paragraph.trim().replace(/\s+/g, " ");
-
-    // Ensure proper capitalization for first letter of paragraph
-    if (paragraph.length > 0) {
-      paragraph = paragraph.charAt(0).toUpperCase() + paragraph.slice(1);
-    }
-
-    return paragraph;
-  });
-
-  // Filter out empty paragraphs
-  paragraphs = paragraphs.filter((p) => p.length > 0);
-
-  // Structure the reading for better readability
-  // First paragraph as introduction
-  let formattedReading = paragraphs[0] + "\n\n";
-
-  // Middle paragraphs with bullet points for easier scanning
-  if (paragraphs.length > 2) {
-    for (let i = 1; i < paragraphs.length - 1; i++) {
-      // Add bullet points to middle paragraphs for easier reading
-      formattedReading += "• " + paragraphs[i] + "\n\n";
-    }
-  }
-
-  // Last paragraph as conclusion if there are at least 3 paragraphs
-  if (paragraphs.length >= 3) {
-    formattedReading += paragraphs[paragraphs.length - 1];
-  } else if (paragraphs.length === 2) {
-    // If only 2 paragraphs, add the second one without bullet
-    formattedReading += paragraphs[1];
-  }
-
-  return formattedReading;
-}
 
 // Using module.exports instead of export default for better compatibility with Vercel
 module.exports = async function handler(req, res) {
@@ -101,10 +53,19 @@ Cards drawn: ${cards}
 Please provide a detailed and insightful tarot reading based on these three cards. The first card represents the past, the second represents the present, and the third represents the future. The reading should have a mystical tone, relate directly to the query, and provide guidance.`;
     }
 
-    // Call Together.ai API with Llama-3.3-70B-Instruct-Turbo
-    const response = await axios.post(
-      TOGETHER_API_URL,
-      {
+    // Set headers for server-sent events
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+    
+    // Make the request to Together.ai with streaming enabled
+    const togetherResponse = await fetch(TOGETHER_API_URL, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${TOGETHER_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
         model: "meta-llama/Llama-3.3-70B-Instruct-Turbo",
         prompt: prompt,
         max_tokens: 800,
@@ -112,26 +73,128 @@ Please provide a detailed and insightful tarot reading based on these three card
         top_p: 0.9,
         top_k: 40,
         stop: ["</s>", "User:", "Assistant:"],
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${TOGETHER_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
+        stream: true, // Enable streaming
+      }),
+    });
 
-    // Get the raw reading text
-    const rawReading = response.data.choices[0].text.trim();
-
-    // Format the reading with paragraphs and line breaks for easier reading
-    const formattedReading = formatReadingText(rawReading);
+    // Check if the response is ok
+    if (!togetherResponse.ok) {
+      const errorData = await togetherResponse.json();
+      console.error("Together API error:", errorData);
+      return res.status(togetherResponse.status).json({
+        error: "API request failed",
+        details: errorData,
+      });
+    }
 
     console.log("Query: ", query);
-    console.log("AI Response: ", formattedReading);
+    console.log("Streaming response initiated");
 
-    // Return the formatted reading to the client
-    return res.status(200).json({ reading: formattedReading });
+    // Create a pass-through stream to handle streaming response
+    const stream = new PassThrough();
+
+    // Process the stream from Together.ai
+    const reader = togetherResponse.body.getReader();
+    const decoder = new TextDecoder();
+    
+    // Set up timeout protection
+    const TIMEOUT_MS = 120000; // 2 minutes timeout
+    let timeoutId = setTimeout(() => {
+      console.error("Stream processing timeout");
+      res.write(`data: ${JSON.stringify({ error: "Stream processing timeout after 2 minutes" })}\n\n`);
+      res.write("data: [DONE]\n\n");
+      res.end();
+    }, TIMEOUT_MS);
+    
+    // Track if response has ended to prevent double-ending
+    let hasEnded = false;
+    
+    // Function to safely end the response
+    const safeEndResponse = (message = null) => {
+      if (hasEnded) return;
+      
+      clearTimeout(timeoutId);
+      if (message) {
+        res.write(`data: ${JSON.stringify({ token: message })}\n\n`);
+      }
+      res.write("data: [DONE]\n\n");
+      res.end();
+      hasEnded = true;
+    };
+    
+    // Handle client disconnect
+    req.on('close', () => {
+      console.log("Client disconnected");
+      clearTimeout(timeoutId);
+      hasEnded = true; // Mark as ended so we don't try to write to it
+    });
+    
+    async function processStream() {
+      try {
+        while (!hasEnded) {
+          const { done, value } = await reader.read();
+          if (done) {
+            safeEndResponse();
+            break;
+          }
+
+          // Reset timeout on each chunk
+          clearTimeout(timeoutId);
+          timeoutId = setTimeout(() => {
+            console.error("Stream processing timeout");
+            safeEndResponse("\n\n[The mystical connection has faded. The reading is incomplete.]");
+          }, TIMEOUT_MS);
+
+          // Decode the chunk and parse the SSE format from Together.ai
+          const chunk = decoder.decode(value, { stream: true });
+          
+          // Together.ai returns data in the format "data: {...}\n\n"
+          const lines = chunk.split("\n\n");
+          for (const line of lines) {
+            if (hasEnded) break; // Check if we've already ended
+            
+            if (line.trim() && line.startsWith("data: ")) {
+              try {
+                // Special case for parsing errors
+                if (line.includes('"error":')) {
+                  const errorData = JSON.parse(line.replace("data: ", ""));
+                  console.error("Together.ai stream error:", errorData);
+                  safeEndResponse("\n\n[The cards have become unclear. We must end this reading.]");
+                  break;
+                }
+                
+                const jsonData = JSON.parse(line.replace("data: ", ""));
+                
+                // Extract the token from the response
+                if (jsonData.choices && jsonData.choices[0] && jsonData.choices[0].text) {
+                  const token = jsonData.choices[0].text;
+                  
+                  // Send token to client
+                  if (!hasEnded) {
+                    res.write(`data: ${JSON.stringify({ token })}\n\n`);
+                  }
+                }
+              } catch (e) {
+                // Log and continue on malformed JSON
+                console.error("Error parsing SSE chunk:", e, "Raw data:", line);
+              }
+            }
+          }
+        }
+      } catch (error) {
+        console.error("Stream processing error:", error);
+        safeEndResponse("\n\n[A disturbance in the mystical energies has occurred. The reading cannot continue.]");
+      } finally {
+        clearTimeout(timeoutId);
+      }
+    }
+
+    // Start processing the stream
+    processStream().catch(error => {
+      console.error("Unhandled error in stream processing:", error);
+      safeEndResponse();
+    });
+
   } catch (error) {
     console.error("Error generating tarot reading:", error);
     // Log full error details including stack trace

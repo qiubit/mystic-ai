@@ -64,6 +64,16 @@ const TarotChat = () => {
     }, 1000);
   };
 
+  // Create ref to track if component is mounted
+  const isMountedRef = useRef(true);
+  
+  // Set up cleanup on unmount
+  useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
   const handleCardsSelected = async (selectedCards) => {
     setIsWaitingForCards(false);
     setIsGeneratingReading(true);
@@ -87,27 +97,52 @@ const TarotChat = () => {
       },
     ]);
 
+    const abortController = new AbortController();
+    
     try {
-      // Generate AI reading using Together.ai
-      const reading = await generateTarotReading(
-        selectedCards,
-        currentSpreadType,
-        currentQuery
-      );
-
-      // Update the loading message with the actual reading
+      // Create a placeholder for the streaming reading
       setMessages((prev) => [
         ...prev.slice(0, prev.length - 1),
-        { role: "assistant", content: reading },
+        { role: "assistant", content: "" },
       ]);
+
+      // Generate AI reading using Together.ai with streaming callback
+      await generateTarotReading(
+        selectedCards,
+        currentSpreadType,
+        currentQuery,
+        (token, fullReading) => {
+          // Only update if component is still mounted
+          if (isMountedRef.current) {
+            // Update the message with each new token received
+            setMessages((prev) => [
+              ...prev.slice(0, prev.length - 1),
+              { role: "assistant", content: fullReading },
+            ]);
+            
+            // Auto-scroll as new content arrives
+            messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+          }
+        },
+        abortController.signal // Pass the abort controller signal
+      );
     } catch (error) {
       console.error("Error generating reading:", error);
+      
+      // Create a more user-friendly error message based on the error type
+      let errorMsg = "I am unable to interpret the cards at this moment. The spiritual connection is unclear.";
+      
+      if (error.message && error.message.includes("timeout")) {
+        errorMsg = "The mystical energies have faded. The connection was lost while channeling your reading.";
+      } else if (error.message && error.message.includes("network")) {
+        errorMsg = "The cosmic pathways are blocked. I cannot reach beyond the veil to complete your reading.";
+      }
+      
       setMessages((prev) => [
         ...prev.slice(0, prev.length - 1),
         {
           role: "error",
-          content:
-            "I am unable to interpret the cards at this moment. The spiritual connection is unclear.",
+          content: errorMsg,
         },
       ]);
     } finally {
