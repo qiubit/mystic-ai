@@ -93,8 +93,52 @@ Please provide a detailed and insightful tarot reading based on these three card
     // Create a pass-through stream to handle streaming response
     const stream = new PassThrough();
 
-    // Process the stream from Together.ai
-    const reader = togetherResponse.body.getReader();
+    // Process the stream from Together.ai - compatible with both node-fetch v2 and Vercel environment
+    let reader;
+    if (togetherResponse.body && typeof togetherResponse.body.getReader === 'function') {
+      // Modern environments with standard ReadableStream
+      reader = togetherResponse.body.getReader();
+    } else {
+      // Handle case where getReader is not available
+      console.log("Streaming not available in this environment, falling back to manual buffer processing");
+      
+      // Send an initial message to the client
+      res.write(`data: ${JSON.stringify({ token: "The cards are being consulted..." })}\n\n`);
+      
+      // Process the entire response as text
+      const fullResponse = await togetherResponse.text();
+      
+      try {
+        // Try to parse the response as JSON if it's not in SSE format
+        const jsonResponse = JSON.parse(fullResponse);
+        
+        if (jsonResponse.choices && jsonResponse.choices[0] && jsonResponse.choices[0].text) {
+          const text = jsonResponse.choices[0].text;
+          // Send the full text in smaller chunks to simulate streaming
+          const chunkSize = 5;
+          for (let i = 0; i < text.length; i += chunkSize) {
+            const chunk = text.slice(i, i + chunkSize);
+            res.write(`data: ${JSON.stringify({ token: chunk })}\n\n`);
+            // Small delay to simulate streaming
+            await new Promise(resolve => setTimeout(resolve, 50));
+          }
+        }
+      } catch (e) {
+        // If it's not valid JSON, it might be SSE format already
+        const lines = fullResponse.split("\n\n");
+        for (const line of lines) {
+          if (line.trim() && line.startsWith("data: ")) {
+            res.write(`${line}\n\n`);
+          }
+        }
+      }
+      
+      // End the response
+      res.write("data: [DONE]\n\n");
+      res.end();
+      return;
+    }
+    
     const decoder = new TextDecoder();
     
     // Set up timeout protection
@@ -131,52 +175,55 @@ Please provide a detailed and insightful tarot reading based on these three card
     
     async function processStream() {
       try {
-        while (!hasEnded) {
-          const { done, value } = await reader.read();
-          if (done) {
-            safeEndResponse();
-            break;
-          }
+        // Only run this if reader exists (was created in the condition above)
+        if (reader) {
+          while (!hasEnded) {
+            const { done, value } = await reader.read();
+            if (done) {
+              safeEndResponse();
+              break;
+            }
+  
+            // Reset timeout on each chunk
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => {
+              console.error("Stream processing timeout");
+              safeEndResponse("\n\n[The mystical connection has faded. The reading is incomplete.]");
+            }, TIMEOUT_MS);
 
-          // Reset timeout on each chunk
-          clearTimeout(timeoutId);
-          timeoutId = setTimeout(() => {
-            console.error("Stream processing timeout");
-            safeEndResponse("\n\n[The mystical connection has faded. The reading is incomplete.]");
-          }, TIMEOUT_MS);
-
-          // Decode the chunk and parse the SSE format from Together.ai
-          const chunk = decoder.decode(value, { stream: true });
-          
-          // Together.ai returns data in the format "data: {...}\n\n"
-          const lines = chunk.split("\n\n");
-          for (const line of lines) {
-            if (hasEnded) break; // Check if we've already ended
+            // Decode the chunk and parse the SSE format from Together.ai
+            const chunk = decoder.decode(value, { stream: true });
             
-            if (line.trim() && line.startsWith("data: ")) {
-              try {
-                // Special case for parsing errors
-                if (line.includes('"error":')) {
-                  const errorData = JSON.parse(line.replace("data: ", ""));
-                  console.error("Together.ai stream error:", errorData);
-                  safeEndResponse("\n\n[The cards have become unclear. We must end this reading.]");
-                  break;
-                }
-                
-                const jsonData = JSON.parse(line.replace("data: ", ""));
-                
-                // Extract the token from the response
-                if (jsonData.choices && jsonData.choices[0] && jsonData.choices[0].text) {
-                  const token = jsonData.choices[0].text;
-                  
-                  // Send token to client
-                  if (!hasEnded) {
-                    res.write(`data: ${JSON.stringify({ token })}\n\n`);
+            // Together.ai returns data in the format "data: {...}\n\n"
+            const lines = chunk.split("\n\n");
+            for (const line of lines) {
+              if (hasEnded) break; // Check if we've already ended
+              
+              if (line.trim() && line.startsWith("data: ")) {
+                try {
+                  // Special case for parsing errors
+                  if (line.includes('"error":')) {
+                    const errorData = JSON.parse(line.replace("data: ", ""));
+                    console.error("Together.ai stream error:", errorData);
+                    safeEndResponse("\n\n[The cards have become unclear. We must end this reading.]");
+                    break;
                   }
+                  
+                  const jsonData = JSON.parse(line.replace("data: ", ""));
+                  
+                  // Extract the token from the response
+                  if (jsonData.choices && jsonData.choices[0] && jsonData.choices[0].text) {
+                    const token = jsonData.choices[0].text;
+                    
+                    // Send token to client
+                    if (!hasEnded) {
+                      res.write(`data: ${JSON.stringify({ token })}\n\n`);
+                    }
+                  }
+                } catch (e) {
+                  // Log and continue on malformed JSON
+                  console.error("Error parsing SSE chunk:", e, "Raw data:", line);
                 }
-              } catch (e) {
-                // Log and continue on malformed JSON
-                console.error("Error parsing SSE chunk:", e, "Raw data:", line);
               }
             }
           }
