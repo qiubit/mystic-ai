@@ -304,3 +304,65 @@ footer {
   margin-right: auto;
   font-style: italic;
 }
+
+/* Icebreaker Suggestions */
+.icebreaker-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-top: 1px solid #eee;
+  background-color: #f9f4ff;
+}
+
+.icebreaker-suggestion {
+  font-size: 0.9rem;
+  padding: 0.5rem 0.75rem;
+  background-color: white;
+  border: 1px solid #e0d5f0;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  max-width: 45%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.icebreaker-suggestion:hover {
+  background-color: var(--primary-color);
+  color: white;
+  border-color: var(--primary-color);
+  transform: translateY(-2px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.suggestion-emoji {
+  margin-right: 0.5rem;
+  font-size: 1.1rem;
+}
+
+.suggestion-category {
+  font-weight: bold;
+  margin-right: 0.5rem;
+  padding-right: 0.5rem;
+  border-right: 1px solid #e0d5f0;
+}
+
+.icebreaker-suggestion:hover .suggestion-category {
+  border-right-color: rgba(255, 255, 255, 0.5);
+}
+
+.suggestion-question {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.suggestion-question {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

@@ -3,6 +3,7 @@ import React, { useState, useRef, useEffect } from "react";
 import TarotDeck from "./TarotDeck";
 import { determineSpread } from "../data/cards";
 import { useTarotReading } from "../services/api";
+import icebreakers from "../data/icebreakers";
 
 const TarotChat = () => {
   const [messages, setMessages] = useState([
@@ -17,14 +18,46 @@ const TarotChat = () => {
   const [currentSpreadType, setCurrentSpreadType] = useState(null);
   const [currentQuery, setCurrentQuery] = useState("");
   const [isGeneratingReading, setIsGeneratingReading] = useState(false);
+  const [randomIcebreaker, setRandomIcebreaker] = useState(null);
   const messagesEndRef = useRef(null);
 
-  const { generateReading, reading } = useTarotReading(() => setIsGeneratingReading(false));
+  const { generateReading, reading } = useTarotReading(() =>
+    setIsGeneratingReading(false)
+  );
+
+  // Get random icebreaker from each category
+  const getIcebreakerSuggestions = () => {
+    return icebreakers.map((category) => {
+      const randomIndex = Math.floor(Math.random() * category.questions.length);
+      return {
+        category: category.category,
+        emoji: category.emoji,
+        question: category.questions[randomIndex],
+      };
+    });
+  };
+
+  // Update icebreaker suggestions when input form is shown
+  useEffect(() => {
+    if (!isWaitingForCards && !isGeneratingReading) {
+      setRandomIcebreaker(getIcebreakerSuggestions());
+    }
+  }, [isWaitingForCards, isGeneratingReading]);
 
   // Auto-scroll to bottom of chat
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  const handleIcebreakerClick = (question) => {
+    setInput(question);
+    // Focus and highlight the input field
+    const inputEl = document.querySelector(".chat-input-form input");
+    if (inputEl) {
+      inputEl.focus();
+      inputEl.select();
+    }
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -58,7 +91,7 @@ const TarotChat = () => {
 
       // Start card selection process
       setIsWaitingForCards(true);
-      
+
       // Force scroll after cards appear
       setTimeout(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -90,11 +123,7 @@ const TarotChat = () => {
 
     try {
       // Generate AI reading using the new hook
-      await generateReading(
-        selectedCards,
-        currentSpreadType,
-        currentQuery
-      );
+      await generateReading(selectedCards, currentSpreadType, currentQuery);
 
       // Update the loading message with the actual reading
       setMessages((prev) => [
@@ -123,7 +152,7 @@ const TarotChat = () => {
         { role: "assistant", content: reading },
       ]);
     }
-  }, [isGeneratingReading, reading])
+  }, [isGeneratingReading, reading]);
 
   return (
     <div className="tarot-chat">
@@ -158,21 +187,42 @@ const TarotChat = () => {
           onCardsSelected={handleCardsSelected}
         />
       ) : (
-        <form onSubmit={handleSubmit} className="chat-input-form">
-          <input
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask the cards..."
-            disabled={isWaitingForCards || isGeneratingReading}
-          />
-          <button
-            type="submit"
-            disabled={isWaitingForCards || isGeneratingReading || !input.trim()}
-          >
-            Ask
-          </button>
-        </form>
+        <>
+          {randomIcebreaker && (
+            <div className="icebreaker-suggestions">
+              {randomIcebreaker.map((suggestion, index) => (
+                <div
+                  key={index}
+                  className="icebreaker-suggestion"
+                  onClick={() => handleIcebreakerClick(suggestion.question)}
+                  title={suggestion.question}
+                >
+                  <span className="suggestion-emoji">{suggestion.emoji}</span>
+                  <span className="suggestion-question">
+                    {suggestion.question}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+          <form onSubmit={handleSubmit} className="chat-input-form">
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Ask the cards..."
+              disabled={isWaitingForCards || isGeneratingReading}
+            />
+            <button
+              type="submit"
+              disabled={
+                isWaitingForCards || isGeneratingReading || !input.trim()
+              }
+            >
+              Ask
+            </button>
+          </form>
+        </>
       )}
     </div>
   );
