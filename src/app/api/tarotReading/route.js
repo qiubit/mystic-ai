@@ -1,5 +1,7 @@
 export const dynamic = 'force-dynamic';
 
+export const maxDuration = 30;
+
 // Using require instead of import for better compatibility with Vercel serverless functions
 const axios = require("axios");
 
