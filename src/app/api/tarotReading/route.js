@@ -5,11 +5,11 @@ export const dynamic = "force-dynamic";
 
 export async function POST(req) {
   try {
-    const TOGETHER_API_KEY = process.env.TOGETHER_API_KEY;
+    const TOGETHER_AI_API_KEY = process.env.TOGETHER_AI_API_KEY;
     const body = await req.json();
     const { cards, spreadType, query } = body;
 
-    if (!TOGETHER_API_KEY) {
+    if (!TOGETHER_AI_API_KEY) {
       return Response.json(
         { error: "API key not configured on server" },
         { status: 500 }

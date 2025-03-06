@@ -9,6 +9,7 @@ A tarot reading application that combines interactive tarot card selection with 
 - Interactive card shuffling and selection animation
 - AI-powered tarot readings generated using Together.ai and Llama-3.3-70B-Instruct-Turbo
 - Secure server-side API key handling for Vercel deployment
+- Post-reading experience with options to download or generate a new reading
 
 ## How it Works
 
@@ -26,10 +27,12 @@ A tarot reading application that combines interactive tarot card selection with 
   - `TarotDeck.js` - Card deck and selection animation
 - `src/data/` - Data files
   - `cards.js` - Tarot card definitions and spread logic
+  - `icebreakers.js` - Suggested questions for users
 - `src/services/` - API and external service integration
   - `api.js` - Client-side API service that calls the server endpoint
-- `api/` - Vercel serverless functions
-  - `tarot-reading.js` - Server-side endpoint that securely calls Together.ai API
+- `src/app/` - Next.js app structure
+  - `[[...slug]]/` - Main app routing
+  - `api/tarotReading/` - Server-side endpoint that securely calls Together.ai API
 
 ## Getting Started
 
@@ -46,12 +49,12 @@ A tarot reading application that combines interactive tarot card selection with 
 
 3. For local development, you can use a `.env.local` file:
    ```
-   TOGETHER_API_KEY=your_together_api_key_here
+   TOGETHER_AI_API_KEY=your_together_api_key_here
    ```
 
 4. Start the development server:
    ```
-   npm start
+   npm run dev
    ```
 
 5. Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
@@ -61,19 +64,21 @@ A tarot reading application that combines interactive tarot card selection with 
 1. Type your question in the chat input
 2. Select cards from the deck when prompted
 3. Receive your AI-generated tarot reading!
+4. Download your reading or generate a new one
 
 ## Technical Details
 
 - **Model Used**: Meta's Llama-3.3-70B-Instruct-Turbo
 - **API Provider**: Together.ai
-- **Framework**: React
-- **API Integration**: axios for HTTP requests
+- **Framework**: Next.js
+- **API Integration**: AI SDK for stream handling
+- **Streaming**: Real-time response streaming with word-level chunking
 
 ## Next Steps
 
 - Add more tarot card deck options and spreads
 - Improve animations and user experience
-- Add ability to save and share readings
+- Add ability to share readings
 - Implement user accounts to save API keys securely
 - Add more AI model options
 
@@ -85,6 +90,6 @@ This app is designed to be deployed on Vercel with server-side API handling.
 
 When deploying to Vercel, add the following environment variable:
 
-- `TOGETHER_API_KEY`: Your Together.ai API key
+- `TOGETHER_AI_API_KEY`: Your Together.ai API key
 
-The API key is securely stored on the server side and never exposed to the client browser. The API requests are proxied through a Vercel serverless function in the `/api` directory.
+The API key is securely stored on the server side and never exposed to the client browser. The API requests are proxied through a Next.js API route in the `/app/api` directory.
