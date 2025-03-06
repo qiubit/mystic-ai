@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 // Using require instead of import for better compatibility with Vercel serverless functions
 const axios = require("axios");
 
