@@ -87,7 +87,7 @@ const TarotDeck = ({ onCardsSelected, spreadType }) => {
             onClick={() => handleCardClick(card)}
           >
             {selectedCards.includes(card) ? (
-              <img src={card.image} alt={card.name} />
+              <img src={card.imageFlux} alt={card.name} />
             ) : (
               <div className="card-back" />
             )}

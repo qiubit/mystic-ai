@@ -163,7 +163,7 @@ const TarotChat = () => {
               <div className="card-spread">
                 {message.cards.map((card, i) => (
                   <div key={i} className="spread-card">
-                    <img src={card.image} alt={card.name} />
+                    <img src={card.imageFlux} alt={card.name} />
                     <div className="card-name">{card.name}</div>
                   </div>
                 ))}
