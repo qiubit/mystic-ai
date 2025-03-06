@@ -192,7 +192,7 @@ const TarotChat = () => {
           onCardsSelected={handleCardsSelected}
         />
       ) : (
-        <>
+        <div className="chat-controls">
           {isReadingComplete && messages.length > 0 && messages[messages.length - 1].role === "assistant" && (
             <div className="reading-actions">
               <button 
@@ -249,7 +249,7 @@ const TarotChat = () => {
               </button>
             </form>
           )}
-        </>
+        </div>
       )}
     </div>
   );
