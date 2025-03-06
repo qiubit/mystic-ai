@@ -1,7 +1,7 @@
 import axios from "axios";
 
 // API endpoint will now be our own server endpoint
-const API_URL = "/api/tarot-reading";
+const API_URL = "/api/tarotReading";
 
 // No API key stored on client
 export const isApiKeySet = () => {

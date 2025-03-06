@@ -55,8 +55,6 @@ function formatReadingText(text) {
 
 // Replace module.exports with a named export for POST
 export async function POST(req) {
-  return Response.json({ reading: "hello, world" });
-
   try {
     // Get API key from environment variable
     const TOGETHER_API_KEY = process.env.TOGETHER_API_KEY;
