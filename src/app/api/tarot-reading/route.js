@@ -63,6 +63,8 @@ export async function POST(req) {
     const body = await req.json(); // Changed from req.body to req.json()
     const { cards, spreadType, query } = body;
 
+    return Response.json({ reading: "hello, world" });
+
     // Log server environment for debugging
     console.log("Node version:", process.version);
     console.log("API key configured:", TOGETHER_API_KEY ? "Yes" : "No");
