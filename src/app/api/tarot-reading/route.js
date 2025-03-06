@@ -55,6 +55,8 @@ function formatReadingText(text) {
 
 // Replace module.exports with a named export for POST
 export async function POST(req) {
+  return Response.json({ reading: "hello, world" });
+
   try {
     // Get API key from environment variable
     const TOGETHER_API_KEY = process.env.TOGETHER_API_KEY;
@@ -62,8 +64,6 @@ export async function POST(req) {
     // Get the request body
     const body = await req.json(); // Changed from req.body to req.json()
     const { cards, spreadType, query } = body;
-
-    return Response.json({ reading: "hello, world" });
 
     // Log server environment for debugging
     console.log("Node version:", process.version);
