@@ -18,12 +18,14 @@ const TarotChat = () => {
   const [currentSpreadType, setCurrentSpreadType] = useState(null);
   const [currentQuery, setCurrentQuery] = useState("");
   const [isGeneratingReading, setIsGeneratingReading] = useState(false);
+  const [isReadingComplete, setIsReadingComplete] = useState(false);
   const [randomIcebreaker, setRandomIcebreaker] = useState(null);
   const messagesEndRef = useRef(null);
 
-  const { generateReading, reading } = useTarotReading(() =>
-    setIsGeneratingReading(false)
-  );
+  const { generateReading, reading } = useTarotReading(() => {
+    setIsGeneratingReading(false);
+    setIsReadingComplete(true);
+  });
 
   // Get random icebreaker from each category
   const getIcebreakerSuggestions = () => {
@@ -64,6 +66,9 @@ const TarotChat = () => {
 
     if (!input.trim()) return;
 
+    // Reset reading completion state
+    setIsReadingComplete(false);
+    
     // Add user message
     const userMessage = { role: "user", content: input };
     setMessages([...messages, userMessage]);
@@ -188,7 +193,27 @@ const TarotChat = () => {
         />
       ) : (
         <>
-          {randomIcebreaker && (
+          {isReadingComplete && messages.length > 0 && messages[messages.length - 1].role === "assistant" && (
+            <div className="reading-actions">
+              <button 
+                className="download-reading" 
+                onClick={() => alert("Download functionality coming soon!")}
+              >
+                Download Reading as an Image
+              </button>
+              <button 
+                className="new-reading" 
+                onClick={() => {
+                  setIsGeneratingReading(false);
+                  setIsReadingComplete(false);
+                  setCurrentSpreadType(null);
+                }}
+              >
+                Get another reading
+              </button>
+            </div>
+          )}
+          {(!isReadingComplete && (!isGeneratingReading || (isGeneratingReading && currentSpreadType === null))) && randomIcebreaker && (
             <div className="icebreaker-suggestions">
               {randomIcebreaker.map((suggestion, index) => (
                 <div
@@ -205,23 +230,25 @@ const TarotChat = () => {
               ))}
             </div>
           )}
-          <form onSubmit={handleSubmit} className="chat-input-form">
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask the cards..."
-              disabled={isWaitingForCards || isGeneratingReading}
-            />
-            <button
-              type="submit"
-              disabled={
-                isWaitingForCards || isGeneratingReading || !input.trim()
-              }
-            >
-              Ask
-            </button>
-          </form>
+          {(!isReadingComplete && (!isGeneratingReading || (isGeneratingReading && currentSpreadType === null))) && (
+            <form onSubmit={handleSubmit} className="chat-input-form">
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Ask the cards..."
+                disabled={isWaitingForCards || (isGeneratingReading && currentSpreadType !== null)}
+              />
+              <button
+                type="submit"
+                disabled={
+                  isWaitingForCards || (isGeneratingReading && currentSpreadType !== null) || !input.trim()
+                }
+              >
+                Ask
+              </button>
+            </form>
+          )}
         </>
       )}
     </div>

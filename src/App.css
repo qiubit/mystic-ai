@@ -305,6 +305,41 @@ footer {
   font-style: italic;
 }
 
+/* Reading Actions */
+.reading-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  padding: 1rem;
+  border-top: 1px solid #eee;
+  background-color: #f9f4ff;
+}
+
+.reading-actions button {
+  padding: 0.8rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+  font-weight: bold;
+}
+
+.download-reading {
+  background-color: var(--accent-color);
+  color: var(--dark-color);
+}
+
+.new-reading {
+  background-color: var(--secondary-color);
+  color: white;
+}
+
+.reading-actions button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
 /* Icebreaker Suggestions */
 .icebreaker-suggestions {
   display: flex;
