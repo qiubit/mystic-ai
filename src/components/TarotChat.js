@@ -2,7 +2,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import TarotDeck from "./TarotDeck";
 import { determineSpread } from "../data/cards";
-import { generateTarotReading } from "../services/api";
+import { useTarotReading } from "../services/api";
 
 const TarotChat = () => {
   const [messages, setMessages] = useState([
@@ -14,10 +14,12 @@ const TarotChat = () => {
   ]);
   const [input, setInput] = useState("");
   const [isWaitingForCards, setIsWaitingForCards] = useState(false);
-  const [isGeneratingReading, setIsGeneratingReading] = useState(false);
   const [currentSpreadType, setCurrentSpreadType] = useState(null);
   const [currentQuery, setCurrentQuery] = useState("");
+  const [isGeneratingReading, setIsGeneratingReading] = useState(false);
   const messagesEndRef = useRef(null);
+
+  const { generateReading, reading } = useTarotReading(() => setIsGeneratingReading(false));
 
   // Auto-scroll to bottom of chat
   useEffect(() => {
@@ -66,7 +68,6 @@ const TarotChat = () => {
 
   const handleCardsSelected = async (selectedCards) => {
     setIsWaitingForCards(false);
-    setIsGeneratingReading(true);
 
     // Add card display message
     setMessages((prev) => [
@@ -88,8 +89,8 @@ const TarotChat = () => {
     ]);
 
     try {
-      // Generate AI reading using Together.ai
-      const reading = await generateTarotReading(
+      // Generate AI reading using the new hook
+      await generateReading(
         selectedCards,
         currentSpreadType,
         currentQuery
@@ -100,6 +101,8 @@ const TarotChat = () => {
         ...prev.slice(0, prev.length - 1),
         { role: "assistant", content: reading },
       ]);
+
+      setIsGeneratingReading(true);
     } catch (error) {
       console.error("Error generating reading:", error);
       setMessages((prev) => [
@@ -110,10 +113,17 @@ const TarotChat = () => {
             "I am unable to interpret the cards at this moment. The spiritual connection is unclear.",
         },
       ]);
-    } finally {
-      setIsGeneratingReading(false);
     }
   };
+
+  useEffect(() => {
+    if (isGeneratingReading) {
+      setMessages((prev) => [
+        ...prev.slice(0, prev.length - 1),
+        { role: "assistant", content: reading },
+      ]);
+    }
+  }, [isGeneratingReading, reading])
 
   return (
     <div className="tarot-chat">

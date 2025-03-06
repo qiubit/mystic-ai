@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@ai-sdk/togetherai": "^0.1.14",
+    "ai": "^4.1.53",
     "axios": "^1.6.7",
     "dotenv": "^16.4.7",
     "next": "^15.2.1",

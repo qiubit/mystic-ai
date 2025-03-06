@@ -12,9 +12,6 @@ function App() {
       <main>
         <TarotChat />
       </main>
-      <footer>
-        <p>Powered by Meta's Llama-3.3-70B-Instruct-Turbo on Together.ai.</p>
-      </footer>
     </div>
   );
 }

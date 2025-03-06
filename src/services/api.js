@@ -1,4 +1,4 @@
-import axios from "axios";
+import { useChat } from '@ai-sdk/react';
 
 // API endpoint will now be our own server endpoint
 const API_URL = "/api/tarotReading";
@@ -15,23 +15,48 @@ export const setApiKey = () => {
   return true;
 };
 
-export const generateTarotReading = async (cards, spreadType, query) => {
-  try {
+export function useTarotReading(onFinish) {
+  const {
+    messages,
+    setMessages,
+    input,
+    handleInputChange,
+    handleSubmit,
+    error,
+    status,
+  } = useChat({
+    api: '/api/tarotReading',
+    onFinish
+  });
+
+  const generateReading = async (cards, spreadType, query) => {
     // Format cards into a readable format for the prompt
     const formattedCards = cards
       .map((card) => `${card.name} (${card.uprightMeaning})`)
       .join(", ");
 
-    // Call our server API endpoint instead of directly calling together.ai
-    const response = await axios.post(API_URL, {
-      cards: formattedCards,
-      spreadType,
-      query
-    });
+    // Clear previous messages
+    setMessages([]);
 
-    return response.data.reading;
-  } catch (error) {
-    console.error("Error generating tarot reading:", error);
-    return "I am unable to consult the cards at this moment. The spiritual connection is unclear.";
-  }
-};
+    // Submit the reading request
+    const response = await handleSubmit(null,
+      {
+        body: {
+          cards: formattedCards,
+          spreadType,
+          query,
+        },
+        allowEmptySubmit: true,
+      },
+    );
+
+    return response;
+  };
+
+  return {
+    reading: messages[messages.length - 1]?.content || '',
+    generateReading,
+    error,
+    status,
+  };
+}
