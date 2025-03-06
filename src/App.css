@@ -25,13 +25,14 @@ body {
 .App-header {
   background-color: var(--primary-color);
   color: white;
-  padding: 1rem;
+  padding: 0.5rem;
   text-align: center;
 }
 
-.App-header h1 {
+.App-header h2 {
   margin: 0;
-  font-size: 2.5rem;
+  font-size: 2rem;
+  cursor: pointer;
 }
 
 main {

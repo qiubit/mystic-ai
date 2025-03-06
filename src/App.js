@@ -6,8 +6,7 @@ function App() {
   return (
     <div className="App">
       <header className="App-header">
-        <h1>✨ Mystic AI ✨</h1>
-        <p>Tarot Readings Powered by Llama-3.3-70B via Together.ai</p>
+        <h2 onClick={() => window.location.reload()}>✨ Mystic AI ✨</h2>
       </header>
       <main>
         <TarotChat />
