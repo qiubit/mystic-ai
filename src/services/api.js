@@ -54,7 +54,7 @@ export function useTarotReading(onFinish) {
   };
 
   return {
-    reading: messages[messages.length - 1]?.content || '',
+    reading: messages[messages.length - 1]?.content || 'Looking into the cards...',
     generateReading,
     error,
     status,
