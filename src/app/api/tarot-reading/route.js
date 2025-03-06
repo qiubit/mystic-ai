@@ -53,16 +53,15 @@ function formatReadingText(text) {
   return formattedReading;
 }
 
-// Using module.exports instead of export default for better compatibility with Vercel
-module.exports = async function handler(req, res) {
-  // Only allow POST requests
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
-
+// Replace module.exports with a named export for POST
+export async function POST(req) {
   try {
     // Get API key from environment variable
     const TOGETHER_API_KEY = process.env.TOGETHER_API_KEY;
+
+    // Get the request body
+    const body = await req.json(); // Changed from req.body to req.json()
+    const { cards, spreadType, query } = body;
 
     // Log server environment for debugging
     console.log("Node version:", process.version);
@@ -75,12 +74,11 @@ module.exports = async function handler(req, res) {
     );
 
     if (!TOGETHER_API_KEY) {
-      return res
-        .status(500)
-        .json({ error: "API key not configured on server" });
+      return Response.json( // Changed from res.status().json()
+        { error: "API key not configured on server" },
+        { status: 500 }
+      );
     }
-
-    const { cards, spreadType, query } = req.body;
 
     // Create a detailed prompt based on spread type
     let prompt = "";
@@ -131,16 +129,18 @@ Please provide a detailed and insightful tarot reading based on these three card
     console.log("AI Response: ", formattedReading);
 
     // Return the formatted reading to the client
-    return res.status(200).json({ reading: formattedReading });
+    return Response.json({ reading: formattedReading }); // Changed from res.status().json()
   } catch (error) {
     console.error("Error generating tarot reading:", error);
-    // Log full error details including stack trace
     console.error(error.stack);
 
-    return res.status(500).json({
-      error: "Failed to generate reading",
-      message: error.message,
-      stack: error.stack,
-    });
+    return Response.json( // Changed from res.status().json()
+      {
+        error: "Failed to generate reading",
+        message: error.message,
+        stack: error.stack,
+      },
+      { status: 500 }
+    );
   }
-};
+}
