@@ -194,29 +194,33 @@ const TarotChat = () => {
         />
       ) : (
         <div className="chat-controls">
-          {isReadingComplete && messages.length > 0 && messages[messages.length - 1].role === "assistant" && (
-            <div className="reading-actions">
-              <button
-                className={`download-reading ${isGeneratingSummary ? 'loading' : ''}`}
-                disabled={isGeneratingSummary}
-                onClick={async () => {
-                  try {
-                    setIsGeneratingSummary(true);
-                    
-                    const response = await fetch("/api/tarotSummary", {
-                      method: "POST",
-                      headers: {
-                        "Content-Type": "application/json",
-                      },
-                      body: JSON.stringify({ reading }),
-                    });
-                    const data = await response.json();
-                    
-                    // Create a new window with the tarot reading summary
-                    const newWindow = window.open("", "_blank");
-                    if (newWindow) {
-                      // Generate HTML for the new window
-                    const html = `<!DOCTYPE html>
+          {isReadingComplete &&
+            messages.length > 0 &&
+            messages[messages.length - 1].role === "assistant" && (
+              <div className="reading-actions">
+                <button
+                  className={`download-reading ${
+                    isGeneratingSummary ? "loading" : ""
+                  }`}
+                  disabled={isGeneratingSummary}
+                  onClick={async () => {
+                    try {
+                      setIsGeneratingSummary(true);
+
+                      const response = await fetch("/api/tarotSummary", {
+                        method: "POST",
+                        headers: {
+                          "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({ reading }),
+                      });
+                      const data = await response.json();
+
+                      // Create a new window with the tarot reading summary
+                      const newWindow = window.open("", "_blank");
+                      if (newWindow) {
+                        // Generate HTML for the new window
+                        const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -432,19 +436,33 @@ const TarotChat = () => {
     <div class="subtitle">${currentQuery}</div>
     
     <div class="cards">
-      ${data.cards.map((card, index) => `
+      ${data.cards
+        .map(
+          (card, index) => `
       <div class="card">
         <div class="card-image">
-          <img src="${card.title.includes('Past') ? messages.find(m => m.role === 'cards')?.cards[0]?.imageFlux?.replace('/', '') : 
-                    card.title.includes('Present') ? messages.find(m => m.role === 'cards')?.cards[1]?.imageFlux?.replace('/', '') : 
-                    messages.find(m => m.role === 'cards')?.cards[2]?.imageFlux?.replace('/', '')}"/>
+          <img src="${
+            card.title.includes("Past")
+              ? messages
+                  .find((m) => m.role === "cards")
+                  ?.cards[0]?.imageFlux?.replace("/", "")
+              : card.title.includes("Present")
+              ? messages
+                  .find((m) => m.role === "cards")
+                  ?.cards[1]?.imageFlux?.replace("/", "")
+              : messages
+                  .find((m) => m.role === "cards")
+                  ?.cards[2]?.imageFlux?.replace("/", "")
+          }"/>
         </div>
         <div class="card-content">
           <div class="card-title">${card.title}</div>
           <div class="card-desc">${card.content}</div>
         </div>
       </div>
-      `).join('')}
+      `
+        )
+        .join("")}
     </div>
     
     <div class="message">
@@ -485,68 +503,80 @@ const TarotChat = () => {
   </script>
 </body>
 </html>`;
-                    
-                    // Write HTML to the new window
-                    newWindow.document.write(html);
-                    newWindow.document.close();
-                  }
-                  } catch (error) {
-                    console.error("Error generating summary:", error);
-                  } finally {
-                    setIsGeneratingSummary(false);
-                  }
-                }}
-              >
-                {isGeneratingSummary ? '\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0Generating...' : 'Download Reading as an Image'}
-              </button>
-              <button
-                className="new-reading"
-                onClick={() => {
-                  setIsGeneratingReading(false);
-                  setIsReadingComplete(false);
-                  setCurrentSpreadType(null);
-                }}
-              >
-                Get another reading
-              </button>
-            </div>
-          )}
-          {(!isReadingComplete && (!isGeneratingReading || (isGeneratingReading && currentSpreadType === null))) && randomIcebreaker && (
-            <div className="icebreaker-suggestions">
-              {randomIcebreaker.map((suggestion, index) => (
-                <div
-                  key={index}
-                  className="icebreaker-suggestion"
-                  onClick={() => handleIcebreakerClick(suggestion.question)}
-                  title={suggestion.question}
+
+                        // Write HTML to the new window
+                        newWindow.document.write(html);
+                        newWindow.document.close();
+                      }
+                    } catch (error) {
+                      console.error("Error generating summary:", error);
+                    } finally {
+                      setIsGeneratingSummary(false);
+                    }
+                  }}
                 >
-                  <span className="suggestion-emoji">{suggestion.emoji}</span>
-                  <span className="suggestion-question">
-                    {suggestion.question}
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
-          {(!isReadingComplete && (!isGeneratingReading || (isGeneratingReading && currentSpreadType === null))) && (
-            <form onSubmit={handleSubmit} className="chat-input-form">
-              <input
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask the cards..."
-                disabled={isWaitingForCards || (isGeneratingReading && currentSpreadType !== null)}
-              />
-              <button
-                type="submit"
-                disabled={
-                  isWaitingForCards || (isGeneratingReading && currentSpreadType !== null) || !input.trim()
-                }
-              >
-                Ask
-              </button>
-            </form>
-          )}
+                  {isGeneratingSummary
+                    ? "\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0Generating..."
+                    : "Get Reading Summary"}
+                </button>
+                <button
+                  className="new-reading"
+                  onClick={() => {
+                    setIsGeneratingReading(false);
+                    setIsReadingComplete(false);
+                    setCurrentSpreadType(null);
+                  }}
+                >
+                  Get another reading
+                </button>
+              </div>
+            )}
+          {!isReadingComplete &&
+            (!isGeneratingReading ||
+              (isGeneratingReading && currentSpreadType === null)) &&
+            randomIcebreaker && (
+              <div className="icebreaker-suggestions">
+                {randomIcebreaker.map((suggestion, index) => (
+                  <div
+                    key={index}
+                    className="icebreaker-suggestion"
+                    onClick={() => handleIcebreakerClick(suggestion.question)}
+                    title={suggestion.question}
+                  >
+                    <span className="suggestion-emoji">{suggestion.emoji}</span>
+                    <span className="suggestion-question">
+                      {suggestion.question}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          {!isReadingComplete &&
+            (!isGeneratingReading ||
+              (isGeneratingReading && currentSpreadType === null)) && (
+              <form onSubmit={handleSubmit} className="chat-input-form">
+                <input
+                  type="text"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  placeholder="Ask the cards..."
+                  disabled={
+                    isWaitingForCards ||
+                    (isGeneratingReading && currentSpreadType !== null)
+                  }
+                />
+                <button
+                  type="submit"
+                  disabled={
+                    isWaitingForCards ||
+                    (isGeneratingReading && currentSpreadType !== null) ||
+                    !input.trim()
+                  }
+                >
+                  Ask
+                </button>
+              </form>
+            )}
         </div>
       )}
     </div>
