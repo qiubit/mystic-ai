@@ -68,7 +68,7 @@ const TarotChat = () => {
 
     // Reset reading completion state
     setIsReadingComplete(false);
-    
+
     // Add user message
     const userMessage = { role: "user", content: input };
     setMessages([...messages, userMessage]);
@@ -195,14 +195,25 @@ const TarotChat = () => {
         <div className="chat-controls">
           {isReadingComplete && messages.length > 0 && messages[messages.length - 1].role === "assistant" && (
             <div className="reading-actions">
-              <button 
-                className="download-reading" 
-                onClick={() => alert("Download functionality coming soon!")}
+              <button
+                className="download-reading"
+                onClick={async () => {
+                  alert("Download functionality coming soon!");
+                  const response = await fetch("/api/tarotSummary", {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ reading }),
+                  });
+                  const json = await response.json();
+                  console.log(json);
+                }}
               >
                 Download Reading as an Image
               </button>
-              <button 
-                className="new-reading" 
+              <button
+                className="new-reading"
                 onClick={() => {
                   setIsGeneratingReading(false);
                   setIsReadingComplete(false);
