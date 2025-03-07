@@ -213,293 +213,40 @@ const TarotChat = () => {
                         },
                         body: JSON.stringify({ reading }),
                       });
-                      const data = await response.json();
+                      const summaryData = await response.json();
 
-                      // Generate HTML for the new window
-                      const html = `<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>MysticAI Tarot Reading</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
-      color: #fff;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
+                      // Add card images to the data
+                      const cardsWithImages = summaryData.cards.map((card, index) => {
+                        let imageUrl = '';
+                        if (card.title.includes("Past")) {
+                          imageUrl = messages.find((m) => m.role === "cards")?.cards[0]?.imageFlux;
+                        } else if (card.title.includes("Present")) {
+                          imageUrl = messages.find((m) => m.role === "cards")?.cards[1]?.imageFlux;
+                        } else {
+                          imageUrl = messages.find((m) => m.role === "cards")?.cards[2]?.imageFlux;
+                        }
+                        return {
+                          ...card,
+                          image: imageUrl
+                        };
+                      });
 
-    .container {
-      width: 90%;
-      max-width: 800px;
-      background: rgba(0, 0, 0, 0.4);
-      backdrop-filter: blur(10px);
-      border-radius: 20px;
-      padding: 30px;
-      box-shadow: 0 0 40px rgba(138, 43, 226, 0.5);
-      position: relative;
-      z-index: 1;
-      overflow: hidden;
-    }
+                      // Prepare complete data for sharing
+                      const readingData = {
+                        ...summaryData,
+                        cards: cardsWithImages,
+                        query: currentQuery
+                      };
 
-    .container::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cpath fill='%23ffffff10' d='M11 18l-10 30L45 80l44-40-10-20-28 10z'/%3E%3C/svg%3E") repeat;
-      z-index: -1;
-      opacity: 0.05;
-    }
-
-    h1 {
-      text-align: center;
-      margin-top: 0;
-      background: linear-gradient(90deg, #f8bbd0, #b39ddb, #90caf9);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      font-size: 28px;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-    }
-
-    .subtitle {
-      text-align: center;
-      font-size: 14px;
-      color: #d8c6ff;
-      letter-spacing: 3px;
-      margin-bottom: 40px;
-    }
-
-    .cards {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 30px;
-    }
-
-    @media (max-width: 600px) {
-      .cards {
-        flex-direction: column;
-        align-items: center;
-        gap: 30px;
-      }
-    }
-
-    .card {
-      flex: 0 0 30%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      position: relative;
-    }
-
-    .card-image {
-      width: 150px;
-      height: 250px;
-      background-color: #150e2d;
-      border-radius: 10px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin-bottom: 15px;
-      position: relative;
-      box-shadow: 0 7px 15px rgba(0, 0, 0, 0.4);
-      overflow: hidden;
-      transform: rotate(0deg);
-      transition: transform 0.3s ease;
-    }
-
-    .card:nth-child(1) .card-image {
-      transform: rotate(-5deg);
-      background: linear-gradient(to bottom, #151626, #000114);
-    }
-
-    .card:nth-child(2) .card-image {
-      transform: rotate(0deg);
-      background: linear-gradient(to bottom, #25182e, #160a26);
-    }
-
-    .card:nth-child(3) .card-image {
-      transform: rotate(5deg);
-      background: linear-gradient(to bottom, #2c0d0d, #1a0505);
-    }
-
-    .card-content {
-      text-align: center;
-    }
-
-    .card-title {
-      font-weight: bold;
-      margin-bottom: 10px;
-      font-size: 18px;
-      color: #f5da9c;
-    }
-
-    .card-desc {
-      font-size: 14px;
-      line-height: 1.4;
-      color: #e0e0e0;
-      max-width: 200px;
-    }
-
-    .card-image img {
-      max-width: 90%;
-      max-height: 90%;
-      opacity: 0.8;
-    }
-
-    .message {
-      text-align: center;
-      padding: 20px;
-      font-size: 18px;
-      font-style: italic;
-      color: #f5da9c;
-    }
-
-    .star {
-      position: absolute;
-      background-color: white;
-      border-radius: 50%;
-      z-index: -1;
-    }
-
-    .footer {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-top: 30px;
-      padding-top: 15px;
-    }
-
-    .logo {
-      font-size: 14px;
-      font-weight: bold;
-      color: #b39ddb;
-    }
-
-    .cta {
-      background: linear-gradient(90deg, #9c27b0, #673ab7);
-      color: white;
-      border: none;
-      padding: 8px 15px;
-      border-radius: 20px;
-      font-size: 12px;
-      cursor: pointer;
-    }
-
-    .emoji {
-      font-size: 22px;
-      margin-right: 5px;
-      vertical-align: middle;
-    }
-
-    .card-symbol {
-      font-size: 60px;
-      opacity: 0.6;
-    }
-
-    .card:nth-child(1) .card-symbol {
-      color: #cddc39;
-    }
-
-    .card:nth-child(2) .card-symbol {
-      color: #5c6bc0;
-    }
-
-    .card:nth-child(3) .card-symbol {
-      color: #ef5350;
-    }
-
-    .card-image img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      border-radius: 5px;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h1>✨ MysticAI Tarot Reading ✨</h1>
-    <div class="subtitle">${currentQuery}</div>
-
-    <div class="cards">
-      ${data.cards
-        .map(
-          (card, index) => `
-      <div class="card">
-        <div class="card-image">
-          <img src="${
-            card.title.includes("Past")
-              ? messages.find((m) => m.role === "cards")?.cards[0]?.imageFlux
-              : card.title.includes("Present")
-              ? messages.find((m) => m.role === "cards")?.cards[1]?.imageFlux
-              : messages.find((m) => m.role === "cards")?.cards[2]?.imageFlux
-          }"/>
-        </div>
-        <div class="card-content">
-          <div class="card-title">${card.title}</div>
-          <div class="card-desc">${card.content}</div>
-        </div>
-      </div>
-      `
-        )
-        .join("")}
-    </div>
-
-    <div class="message">
-      ${data.summary}
-    </div>
-
-    <div class="footer">
-      <div class="logo">MysticAI</div>
-      <button class="cta" onclick="window.close()">Close Window</button>
-    </div>
-  </div>
-
-  <script>
-    // Create stars in the background
-    function createStars() {
-      const container = document.querySelector('.container');
-      for (let i = 0; i < 50; i++) {
-        const star = document.createElement('div');
-        star.classList.add('star');
-
-        // Random size between 1-3px
-        const size = Math.random() * 2 + 1;
-        star.style.width = \`\${size}px\`;
-        star.style.height = \`\${size}px\`;
-
-        // Random position
-        star.style.top = \`\${Math.random() * 100}%\`;
-        star.style.left = \`\${Math.random() * 100}%\`;
-
-        // Random opacity
-        star.style.opacity = Math.random() * 0.8 + 0.2;
-
-        container.appendChild(star);
-      }
-    }
-
-    createStars();
-  </script>
-</body>
-</html>`;
+                      // Share the reading data
                       const shareResponse = await fetch("/api/tarotShare", {
                         method: "POST",
                         headers: {
                           "Content-Type": "application/json",
                         },
-                        body: JSON.stringify({ data }),
+                        body: JSON.stringify({ data: readingData }),
                       });
+
                       const shareData = await shareResponse.json();
                       const uuid = shareData.uuid;
                       window.open(`/readings/${uuid}`, "_blank");
