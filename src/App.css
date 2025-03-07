@@ -342,6 +342,31 @@ footer {
 .download-reading {
   background-color: var(--accent-color);
   color: var(--dark-color);
+  position: relative;
+}
+
+.download-reading.loading {
+  background-color: #d4b30a;
+  cursor: wait;
+}
+
+.download-reading.loading::after {
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  top: calc(50% - 8px);
+  left: 20px;
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  border-top-color: var(--dark-color);
+  animation: spinner 0.8s linear infinite;
+}
+
+@keyframes spinner {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .new-reading {
