@@ -206,7 +206,6 @@ const TarotChat = () => {
                   onClick={async () => {
                     try {
                       setIsGeneratingSummary(true);
-
                       const response = await fetch("/api/tarotSummary", {
                         method: "POST",
                         headers: {
@@ -216,11 +215,8 @@ const TarotChat = () => {
                       });
                       const data = await response.json();
 
-                      // Create a new window with the tarot reading summary
-                      const newWindow = window.open("", "_blank");
-                      if (newWindow) {
-                        // Generate HTML for the new window
-                        const html = `<!DOCTYPE html>
+                      // Generate HTML for the new window
+                      const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -238,7 +234,7 @@ const TarotChat = () => {
       justify-content: center;
       align-items: center;
     }
-    
+
     .container {
       width: 90%;
       max-width: 800px;
@@ -251,7 +247,7 @@ const TarotChat = () => {
       z-index: 1;
       overflow: hidden;
     }
-    
+
     .container::before {
       content: "";
       position: absolute;
@@ -263,7 +259,7 @@ const TarotChat = () => {
       z-index: -1;
       opacity: 0.05;
     }
-    
+
     h1 {
       text-align: center;
       margin-top: 0;
@@ -274,7 +270,7 @@ const TarotChat = () => {
       letter-spacing: 2px;
       text-transform: uppercase;
     }
-    
+
     .subtitle {
       text-align: center;
       font-size: 14px;
@@ -282,13 +278,13 @@ const TarotChat = () => {
       letter-spacing: 3px;
       margin-bottom: 40px;
     }
-    
+
     .cards {
       display: flex;
       justify-content: space-between;
       margin-bottom: 30px;
     }
-    
+
     @media (max-width: 600px) {
       .cards {
         flex-direction: column;
@@ -296,7 +292,7 @@ const TarotChat = () => {
         gap: 30px;
       }
     }
-    
+
     .card {
       flex: 0 0 30%;
       display: flex;
@@ -304,7 +300,7 @@ const TarotChat = () => {
       align-items: center;
       position: relative;
     }
-    
+
     .card-image {
       width: 150px;
       height: 250px;
@@ -320,46 +316,46 @@ const TarotChat = () => {
       transform: rotate(0deg);
       transition: transform 0.3s ease;
     }
-    
+
     .card:nth-child(1) .card-image {
       transform: rotate(-5deg);
       background: linear-gradient(to bottom, #151626, #000114);
     }
-    
+
     .card:nth-child(2) .card-image {
       transform: rotate(0deg);
       background: linear-gradient(to bottom, #25182e, #160a26);
     }
-    
+
     .card:nth-child(3) .card-image {
       transform: rotate(5deg);
       background: linear-gradient(to bottom, #2c0d0d, #1a0505);
     }
-    
+
     .card-content {
       text-align: center;
     }
-    
+
     .card-title {
       font-weight: bold;
       margin-bottom: 10px;
       font-size: 18px;
       color: #f5da9c;
     }
-    
+
     .card-desc {
       font-size: 14px;
       line-height: 1.4;
       color: #e0e0e0;
       max-width: 200px;
     }
-    
+
     .card-image img {
       max-width: 90%;
       max-height: 90%;
       opacity: 0.8;
     }
-    
+
     .message {
       text-align: center;
       padding: 20px;
@@ -367,14 +363,14 @@ const TarotChat = () => {
       font-style: italic;
       color: #f5da9c;
     }
-    
+
     .star {
       position: absolute;
       background-color: white;
       border-radius: 50%;
       z-index: -1;
     }
-    
+
     .footer {
       display: flex;
       justify-content: space-between;
@@ -382,13 +378,13 @@ const TarotChat = () => {
       margin-top: 30px;
       padding-top: 15px;
     }
-    
+
     .logo {
       font-size: 14px;
       font-weight: bold;
       color: #b39ddb;
     }
-    
+
     .cta {
       background: linear-gradient(90deg, #9c27b0, #673ab7);
       color: white;
@@ -398,26 +394,26 @@ const TarotChat = () => {
       font-size: 12px;
       cursor: pointer;
     }
-    
+
     .emoji {
       font-size: 22px;
       margin-right: 5px;
       vertical-align: middle;
     }
-    
+
     .card-symbol {
       font-size: 60px;
       opacity: 0.6;
     }
-    
+
     .card:nth-child(1) .card-symbol {
       color: #cddc39;
     }
-    
+
     .card:nth-child(2) .card-symbol {
       color: #5c6bc0;
     }
-    
+
     .card:nth-child(3) .card-symbol {
       color: #ef5350;
     }
@@ -434,7 +430,7 @@ const TarotChat = () => {
   <div class="container">
     <h1>✨ MysticAI Tarot Reading ✨</h1>
     <div class="subtitle">${currentQuery}</div>
-    
+
     <div class="cards">
       ${data.cards
         .map(
@@ -443,16 +439,10 @@ const TarotChat = () => {
         <div class="card-image">
           <img src="${
             card.title.includes("Past")
-              ? messages
-                  .find((m) => m.role === "cards")
-                  ?.cards[0]?.imageFlux?.replace("/", "")
+              ? messages.find((m) => m.role === "cards")?.cards[0]?.imageFlux
               : card.title.includes("Present")
-              ? messages
-                  .find((m) => m.role === "cards")
-                  ?.cards[1]?.imageFlux?.replace("/", "")
-              : messages
-                  .find((m) => m.role === "cards")
-                  ?.cards[2]?.imageFlux?.replace("/", "")
+              ? messages.find((m) => m.role === "cards")?.cards[1]?.imageFlux
+              : messages.find((m) => m.role === "cards")?.cards[2]?.imageFlux
           }"/>
         </div>
         <div class="card-content">
@@ -464,17 +454,17 @@ const TarotChat = () => {
         )
         .join("")}
     </div>
-    
+
     <div class="message">
       ${data.summary}
     </div>
-    
+
     <div class="footer">
       <div class="logo">MysticAI</div>
       <button class="cta" onclick="window.close()">Close Window</button>
     </div>
   </div>
-  
+
   <script>
     // Create stars in the background
     function createStars() {
@@ -482,32 +472,37 @@ const TarotChat = () => {
       for (let i = 0; i < 50; i++) {
         const star = document.createElement('div');
         star.classList.add('star');
-        
+
         // Random size between 1-3px
         const size = Math.random() * 2 + 1;
         star.style.width = \`\${size}px\`;
         star.style.height = \`\${size}px\`;
-        
+
         // Random position
         star.style.top = \`\${Math.random() * 100}%\`;
         star.style.left = \`\${Math.random() * 100}%\`;
-        
+
         // Random opacity
         star.style.opacity = Math.random() * 0.8 + 0.2;
-        
+
         container.appendChild(star);
       }
     }
-    
+
     createStars();
   </script>
 </body>
 </html>`;
-
-                        // Write HTML to the new window
-                        newWindow.document.write(html);
-                        newWindow.document.close();
-                      }
+                      const shareResponse = await fetch("/api/tarotShare", {
+                        method: "POST",
+                        headers: {
+                          "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({ html }),
+                      });
+                      const shareData = await shareResponse.json();
+                      const uuid = shareData.uuid;
+                      window.open(`/readings/${uuid}`, "_blank");
                     } catch (error) {
                       console.error("Error generating summary:", error);
                     } finally {
