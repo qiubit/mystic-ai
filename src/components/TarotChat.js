@@ -216,18 +216,30 @@ const TarotChat = () => {
                       const summaryData = await response.json();
 
                       // Add card images to the data
-                      const cardsWithImages = summaryData.cards.map((card, index) => {
-                        let imageUrl = '';
+                      const cardsWithImages = summaryData.cards.map((card) => {
+                        let imageUrl = "";
                         if (card.title.includes("Past")) {
-                          imageUrl = messages.find((m) => m.role === "cards")?.cards[0]?.imageFlux;
+                          imageUrl = messages
+                            .slice()
+                            .reverse()
+                            .find((m) => m.role === "cards")
+                            ?.cards[0]?.imageFlux;
                         } else if (card.title.includes("Present")) {
-                          imageUrl = messages.find((m) => m.role === "cards")?.cards[1]?.imageFlux;
+                          imageUrl = messages
+                            .slice()
+                            .reverse()
+                            .find((m) => m.role === "cards")
+                            ?.cards[1]?.imageFlux;
                         } else {
-                          imageUrl = messages.find((m) => m.role === "cards")?.cards[2]?.imageFlux;
+                          imageUrl = messages
+                            .slice()
+                            .reverse()
+                            .find((m) => m.role === "cards")
+                            ?.cards[2]?.imageFlux;
                         }
                         return {
                           ...card,
-                          image: imageUrl
+                          image: imageUrl,
                         };
                       });
 
@@ -235,7 +247,7 @@ const TarotChat = () => {
                       const readingData = {
                         ...summaryData,
                         cards: cardsWithImages,
-                        query: currentQuery
+                        query: currentQuery,
                       };
 
                       // Share the reading data
