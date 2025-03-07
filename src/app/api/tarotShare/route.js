@@ -7,20 +7,20 @@ import { v4 as uuidv4 } from "uuid";
 export const dynamic = "force-dynamic";
 
 function parseHtmlFilename(url) {
-    // Create a URL object
-    const urlObj = new URL(url);
+  // Create a URL object
+  const urlObj = new URL(url);
 
-    // Get the pathname from the URL
-    const pathname = urlObj.pathname;
+  // Get the pathname from the URL
+  const pathname = urlObj.pathname;
 
-    // Extract just the filename part from the pathname
-    const filenameWithExtension = pathname.split('/').pop();
+  // Extract just the filename part from the pathname
+  const filenameWithExtension = pathname.split("/").pop();
 
-    // Remove the .html extension
-    const filename = filenameWithExtension.replace('.html', '');
+  // Remove the .html extension
+  const filename = filenameWithExtension.replace(".json", "");
 
-    return filename;
-  }
+  return filename;
+}
 
 export async function POST(req) {
   try {
@@ -32,12 +32,11 @@ export async function POST(req) {
       );
     }
     const body = await req.json();
-    const { html } = body;
+    const { data } = body;
     const uuid = uuidv4();
-    const { url } = await put(`readings/${uuid}.html`, html, {
+    const { url } = await put(`readings/${uuid}.json`, JSON.stringify(data), {
       access: "public",
     });
-    console.log(url);
     const filename = parseHtmlFilename(url);
     return NextResponse.json({ uuid: filename });
   } catch (error) {

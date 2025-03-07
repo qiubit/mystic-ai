@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import '../../../App.css';
+import "../../../App.css";
 
-import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 
 export default function ReadingPage() {
-  const [html, setHtml] = useState('');
+  const [html, setHtml] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const params = useParams();
@@ -20,13 +20,13 @@ export default function ReadingPage() {
 
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.error || 'Failed to fetch reading');
+          throw new Error(errorData.error || "Failed to fetch reading");
         }
 
         const data = await response.json();
-        setHtml(data.html);
+        setHtml(data);
       } catch (err) {
-        console.error('Error fetching reading:', err);
+        console.error("Error fetching reading:", err);
         setError(err.message);
       } finally {
         setLoading(false);
@@ -47,10 +47,5 @@ export default function ReadingPage() {
   }
 
   // Render the HTML content directly
-  return (
-    <div
-      className="reading-container"
-      dangerouslySetInnerHTML={{ __html: html }}
-    />
-  );
+  return <div className="reading-container">{JSON.stringify(html)}</div>;
 }

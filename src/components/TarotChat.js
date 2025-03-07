@@ -498,7 +498,7 @@ const TarotChat = () => {
                         headers: {
                           "Content-Type": "application/json",
                         },
-                        body: JSON.stringify({ html }),
+                        body: JSON.stringify({ data }),
                       });
                       const shareData = await shareResponse.json();
                       const uuid = shareData.uuid;

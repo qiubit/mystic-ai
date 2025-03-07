@@ -15,7 +15,7 @@ export async function GET(request) {
     }
 
     // Create the URL to your Vercel Blob storage
-    const blobUrl = `https://p57rgqdwhcfjmnry.public.blob.vercel-storage.com/readings/${uuid}.html`;
+    const blobUrl = `https://p57rgqdwhcfjmnry.public.blob.vercel-storage.com/readings/${uuid}.json`;
 
     // Fetch HTML directly from the blob storage
     const response = await fetch(blobUrl);
@@ -27,8 +27,8 @@ export async function GET(request) {
       );
     }
 
-    const html = await response.text();
-    return NextResponse.json({ html });
+    const json = await response.json();
+    return NextResponse.json(json);
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: error.message }, { status: 500 });
