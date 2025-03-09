@@ -1,14 +1,12 @@
-import '../App.css'
+import "../App.css";
 
 export const metadata = {
-  title: 'Mystic AI - Tarot Readings',
-  description: 'AI-powered Tarot reading application',
-  themeColor: '#6a0dad'
-}
+  title: "Mystic AI - Tarot Readings",
+  description: "AI-powered Tarot reading application",
+  themeColor: "#6a0dad",
+};
 
-export default function RootLayout({
-  children,
-}) {
+export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
@@ -16,5 +14,5 @@ export default function RootLayout({
         <div id="root">{children}</div>
       </body>
     </html>
-  )
+  );
 }

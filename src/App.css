@@ -382,13 +382,28 @@ footer {
 }
 
 /* Icebreaker Suggestions */
-.icebreaker-suggestions {
+.icebreaker-container {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
+  align-items: center;
   border-top: 1px solid #eee;
   background-color: #f9f4ff;
+  position: relative;
+}
+
+.icebreaker-suggestions {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  overflow-x: auto;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  flex: 1;
+  scroll-behavior: smooth;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.icebreaker-suggestions::-webkit-scrollbar {
+  display: none;
 }
 
 .icebreaker-suggestion {
@@ -401,10 +416,45 @@ footer {
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
-  max-width: 45%;
+  flex-shrink: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.icebreaker-nav-button {
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  opacity: 0.8;
+  transition: all 0.2s ease;
+}
+
+.icebreaker-nav-button:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.icebreaker-prev {
+  margin-left: 0.5rem;
+  margin-right: 0.75rem;
+}
+
+.icebreaker-next {
+  margin-right: 0.5rem;
+  margin-left: 0.75rem;
+}
+
+.icebreaker-nav-button.hidden {
+  display: none;
 }
 
 .icebreaker-suggestion:hover {

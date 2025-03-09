@@ -10,7 +10,7 @@ const TarotChat = () => {
     {
       role: "assistant",
       content:
-        "Welcome to Mystic AI—your portal to hidden insights! Please ask your question now to unlock guidance about your future, relationships, or career. Your destiny awaits!",
+        "Welcome to ✨ Mystic AI ✨—your portal to hidden insights! Please ask your question now to unlock guidance about your future, relationships, or career. Your destiny awaits!",
     },
   ]);
   const [input, setInput] = useState("");
@@ -291,20 +291,101 @@ const TarotChat = () => {
             (!isGeneratingReading ||
               (isGeneratingReading && currentSpreadType === null)) &&
             randomIcebreaker && (
-              <div className="icebreaker-suggestions">
-                {randomIcebreaker.map((suggestion, index) => (
-                  <div
-                    key={index}
-                    className="icebreaker-suggestion"
-                    onClick={() => handleIcebreakerClick(suggestion.question)}
-                    title={suggestion.question}
-                  >
-                    <span className="suggestion-emoji">{suggestion.emoji}</span>
-                    <span className="suggestion-question">
-                      {suggestion.question}
-                    </span>
-                  </div>
-                ))}
+              <div className="icebreaker-container">
+                <button
+                  id="icebreaker-prev-btn"
+                  className="icebreaker-nav-button icebreaker-prev hidden"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    const container = document.querySelector(
+                      ".icebreaker-suggestions"
+                    );
+                    container.scrollBy({ left: -300, behavior: "smooth" });
+                  }}
+                >
+                  &#10094;
+                </button>
+                <div
+                  className="icebreaker-suggestions"
+                  onScroll={(e) => {
+                    const container = e.target;
+                    const leftBtn = document.getElementById(
+                      "icebreaker-prev-btn"
+                    );
+                    const rightBtn = document.getElementById(
+                      "icebreaker-next-btn"
+                    );
+
+                    // Show/hide left button based on scroll position
+                    if (leftBtn != null) {
+                      if (container.scrollLeft <= 10) {
+                        leftBtn.classList.add("hidden");
+                      } else {
+                        leftBtn.classList.remove("hidden");
+                      }
+                    }
+
+                    // Show/hide right button based on scroll position
+                    const isAtEnd =
+                      container.scrollWidth - container.clientWidth <=
+                      container.scrollLeft + 10;
+                    if (rightBtn != null) {
+                      if (isAtEnd) {
+                        rightBtn.classList.add("hidden");
+                      } else {
+                        rightBtn.classList.remove("hidden");
+                      }
+                    }
+                  }}
+                  ref={(el) => {
+                    // Initialize button visibility on mount
+                    if (el) {
+                      setTimeout(() => {
+                        const rightBtn = document.getElementById(
+                          "icebreaker-next-btn"
+                        );
+                        const isAtEnd =
+                          el.scrollWidth - el.clientWidth <= el.scrollLeft + 10;
+                        if (rightBtn != null) {
+                          if (isAtEnd) {
+                            rightBtn.classList.add("hidden");
+                          } else {
+                            rightBtn.classList.remove("hidden");
+                          }
+                        }
+                      }, 300);
+                    }
+                  }}
+                >
+                  {randomIcebreaker.map((suggestion, index) => (
+                    <div
+                      key={index}
+                      className="icebreaker-suggestion"
+                      onClick={() => handleIcebreakerClick(suggestion.question)}
+                      title={suggestion.question}
+                    >
+                      <span className="suggestion-emoji">
+                        {suggestion.emoji}
+                      </span>
+                      <span className="suggestion-question">
+                        {suggestion.question}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                <button
+                  id="icebreaker-next-btn"
+                  className="icebreaker-nav-button icebreaker-next"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    const container = document.querySelector(
+                      ".icebreaker-suggestions"
+                    );
+                    container.scrollBy({ left: 300, behavior: "smooth" });
+                  }}
+                >
+                  &#10095;
+                </button>
               </div>
             )}
           {!isReadingComplete &&
