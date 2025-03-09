@@ -2,9 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
-import TarotSummary from "../../../components/TarotSummary";
+import { useTranslations } from 'next-intl';
+import TarotSummary from "../../../../components/TarotSummary";
 
 export default function ReadingPage() {
+  const t = useTranslations('readingPage');
+
   const [readingData, setReadingData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -40,7 +43,7 @@ export default function ReadingPage() {
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen text-lg text-white bg-gradient-to-br from-[#0f0c29] via-[#302b63] to-[#24243e]">
-        Loading reading...
+        {t('loading')}
       </div>
     );
   }
@@ -48,7 +51,7 @@ export default function ReadingPage() {
   if (error) {
     return (
       <div className="flex justify-center items-center min-h-screen text-lg text-white bg-gradient-to-br from-[#0f0c29] via-[#302b63] to-[#24243e]">
-        Error: {error}
+        {t('error', {message: error})}
       </div>
     );
   }

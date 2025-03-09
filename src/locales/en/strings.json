@@ -1,0 +1,34 @@
+{
+  "app": {
+    "title": "Mystic AI - Tarot Readings",
+    "description": "AI-powered Tarot reading application",
+    "jsRequired": "You need to enable JavaScript to run this app."
+  },
+  "tarotChat": {
+    "welcome": "Welcome to ✨ Mystic AI ✨ — your portal to hidden insights! Please ask your question now to unlock guidance about your future, relationships, or career. Your destiny awaits!",
+    "consultCards": "I'm sensing an energy around your question. Let me consult the cards with a three cards spread.",
+    "reading": "Reading the cards and channeling the energies...",
+    "errorReading": "I am unable to interpret the cards at this moment. The spiritual connection is unclear.",
+    "generating": "Generating...",
+    "getSummary": "Get Reading Summary",
+    "getAnotherReading": "Get another reading",
+    "askPlaceholder": "Ask the cards...",
+    "askButton": "Ask"
+  },
+  "tarotDeck": {
+    "shuffle": "Shuffle the Deck",
+    "shuffling": "Shuffling cards...",
+    "selectCards": "Select {count} card{plural}"
+  },
+  "tarotSummary": {
+    "noData": "No reading data available",
+    "title": "✨ MysticAI Tarot Reading ✨",
+    "yourReading": "Your Tarot Reading",
+    "brandName": "MysticAI",
+    "cta": "Get Your Reading Today"
+  },
+  "readingPage": {
+    "loading": "Loading reading...",
+    "error": "Error: {message}"
+  }
+}

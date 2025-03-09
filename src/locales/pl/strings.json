@@ -1,0 +1,34 @@
+{
+    "app": {
+      "title": "Mystic AI – Wróżby Tarota",
+      "description": "Aplikacja do wróżenia z Tarota oparta na AI",
+      "jsRequired": "Aby uruchomić tę aplikację, musisz włączyć obsługę JavaScript."
+    },
+    "tarotChat": {
+      "welcome": "Witamy w ✨ Mystic AI ✨ — Twoim portalu do ukrytych tajemnic! Zadaj pytanie, by otrzymać wskazówki na temat przyszłości, związków lub kariery. Twoje przeznaczenie czeka!",
+      "consultCards": "Czuję energię wokół twojego pytania. Pozwól, że skonsultuję się z kartami przy użyciu rozkładu trzech kart.",
+      "reading": "Odczytuję karty i łączę się z energiami...",
+      "errorReading": "Nie jestem w stanie teraz zinterpretować kart. Połączenie duchowe jest niejasne.",
+      "generating": "Generowanie...",
+      "getSummary": "Pobierz podsumowanie wróżby",
+      "getAnotherReading": "Wykonaj kolejną wróżbę",
+      "askPlaceholder": "Zapytaj karty...",
+      "askButton": "Zapytaj"
+    },
+    "tarotDeck": {
+      "shuffle": "Potasuj talię",
+      "shuffling": "Tasowanie kart...",
+      "selectCards": "Wybierz {count} kart{plural}"
+    },
+    "tarotSummary": {
+      "noData": "Brak dostępnych danych z wróżby",
+      "title": "✨ Wróżba Tarota MysticAI ✨",
+      "yourReading": "Twoja wróżba Tarota",
+      "brandName": "MysticAI",
+      "cta": "Wygeneruj swoją wróżbę"
+    },
+    "readingPage": {
+      "loading": "Wczytywanie wróżby...",
+      "error": "Błąd: {message}"
+    }
+  }

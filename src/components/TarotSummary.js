@@ -1,11 +1,14 @@
 // TarotSummary.js - Component to render a tarot reading summary from JSON
 import React from "react";
+import { useTranslations } from 'next-intl';
 
 const TarotSummary = ({ data }) => {
+  const t = useTranslations('tarotSummary');
+  
   if (!data || !data.cards) {
     return (
       <div className="flex justify-center items-center h-screen text-lg text-white bg-gradient-to-br from-[#0f0c29] via-[#302b63] to-[#24243e]">
-        No reading data available
+        {t('noData')}
       </div>
     );
   }
@@ -19,11 +22,11 @@ const TarotSummary = ({ data }) => {
     >
       <a href="/" className="no-underline">
         <h1 className="text-center font-black mt-0 text-2xl md:text-3xl bg-gradient-to-r from-[#f8bbd0] via-[#b39ddb] to-[#90caf9] bg-clip-text text-transparent uppercase tracking-wider mb-4">
-          ✨ MysticAI Tarot Reading ✨
+          {t('title')}
         </h1>
       </a>
       <div className="text-center text-sm text-[#d8c6ff] tracking-widest mb-10">
-        {data.query || "Your Tarot Reading"}
+        {data.query || t('yourReading')}
       </div>
 
       <div className="flex flex-col md:flex-row justify-between gap-6 md:gap-2 mb-8">
@@ -68,12 +71,12 @@ const TarotSummary = ({ data }) => {
       <div className="flex justify-between items-center mt-8 pt-6 border-t border-purple-900/30">
         <a href="/" className="no-underline">
           <div className="text-sm font-bold text-[#b39ddb] hover:underline">
-            MysticAI
+            {t('brandName')}
           </div>
         </a>
         <a href="/" className="no-underline">
           <button className="bg-gradient-to-r from-[#9c27b0] to-[#673ab7] text-white border-none py-2 px-4 rounded-full text-xs cursor-pointer hover:shadow-lg hover:shadow-purple-500/20 transition-shadow">
-            Get Your Reading Today
+            {t('cta')}
           </button>
         </a>
       </div>

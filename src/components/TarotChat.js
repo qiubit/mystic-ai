@@ -1,16 +1,18 @@
 // TarotChat.js - Main chat interface component
 import React, { useState, useRef, useEffect } from "react";
+import { useTranslations } from 'next-intl';
 import TarotDeck from "./TarotDeck";
 import { determineSpread } from "../data/cards";
 import { useTarotReading } from "../services/api";
 import icebreakers from "../data/icebreakers";
 
 const TarotChat = () => {
+  const t = useTranslations('tarotChat');
+
   const [messages, setMessages] = useState([
     {
       role: "assistant",
-      content:
-        "Welcome to ✨ Mystic AI ✨—your portal to hidden insights! Please ask your question now to unlock guidance about your future, relationships, or career. Your destiny awaits!",
+      content: t('welcome'),
     },
   ]);
   const [input, setInput] = useState("");
@@ -88,10 +90,7 @@ const TarotChat = () => {
         ...prev,
         {
           role: "assistant",
-          content: `I'm sensing an energy around your question. Let me consult the cards with a ${spreadType.replace(
-            "-",
-            " "
-          )} spread.`,
+          content: t('consultCards'),
         },
       ]);
 
@@ -123,7 +122,7 @@ const TarotChat = () => {
       ...prev,
       {
         role: "assistant",
-        content: "Reading the cards and channeling the energies...",
+        content: t('reading'),
       },
     ]);
 
@@ -144,8 +143,7 @@ const TarotChat = () => {
         ...prev.slice(0, prev.length - 1),
         {
           role: "error",
-          content:
-            "I am unable to interpret the cards at this moment. The spiritual connection is unclear.",
+          content: t('errorReading'),
         },
       ]);
     }
@@ -263,7 +261,9 @@ const TarotChat = () => {
 
                       const shareData = await shareResponse.json();
                       const uuid = shareData.uuid;
-                      window.location.replace(`/readings/${uuid}`);
+
+                      const locale = window.location.pathname.split('/')[1];
+                      window.location.replace(`/${locale}/readings/${uuid}`);
                     } catch (error) {
                       console.error("Error generating summary:", error);
                     } finally {
@@ -272,8 +272,8 @@ const TarotChat = () => {
                   }}
                 >
                   {isGeneratingSummary
-                    ? "\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0Generating..."
-                    : "Get Reading Summary"}
+                    ? `\u00A0\u00A0\u00A0\u00A0\u00A0\u00A0${t('generating')}`
+                    : t('getSummary')}
                 </button>
                 <button
                   className="new-reading"
@@ -283,7 +283,7 @@ const TarotChat = () => {
                     setCurrentSpreadType(null);
                   }}
                 >
-                  Get another reading
+                  {t('getAnotherReading')}
                 </button>
               </div>
             )}
@@ -396,7 +396,7 @@ const TarotChat = () => {
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="Ask the cards..."
+                  placeholder={t('askPlaceholder')}
                   disabled={
                     isWaitingForCards ||
                     (isGeneratingReading && currentSpreadType !== null)
@@ -410,7 +410,7 @@ const TarotChat = () => {
                     !input.trim()
                   }
                 >
-                  Ask
+                  {t('askButton')}
                 </button>
               </form>
             )}

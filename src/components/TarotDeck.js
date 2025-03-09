@@ -1,8 +1,11 @@
 // TarotDeck.js - Component to handle card shuffling and selection animation
 import React, { useState, useEffect, useRef } from "react";
+import { useTranslations } from 'next-intl';
 import { shuffleCards, tarotCards } from "../data/cards";
 
 const TarotDeck = ({ onCardsSelected, spreadType }) => {
+  const t = useTranslations('tarotDeck');
+
   const [deck, setDeck] = useState([]);
   const [isShuffling, setIsShuffling] = useState(false);
   const [canSelect, setCanSelect] = useState(false);
@@ -69,20 +72,25 @@ const TarotDeck = ({ onCardsSelected, spreadType }) => {
     }
   };
 
+  const locale = window.location.pathname.split('/')[1];
+
   return (
     <div className="tarot-deck-container">
       {/* Shuffling button - only show before shuffling starts */}
       {!isShuffling && !canSelect && selectedCards.length === 0 && (
         <button className="shuffle-button" onClick={startShuffling}>
-          Shuffle the Deck
+          {t('shuffle')}
         </button>
       )}
 
       {/* Status message */}
-      {isShuffling && <div className="status-message">Shuffling cards...</div>}
+      {isShuffling && <div className="status-message">{t('shuffling')}</div>}
       {canSelect && (
         <div className="status-message">
-          Select {cardsToSelect} card{cardsToSelect > 1 ? "s" : ""}
+          {t('selectCards', {
+            count: cardsToSelect,
+            plural: (locale === 'pl' ? cardsToSelect > 1 ? "y" : "ę" : cardsToSelect > 1 ? "s" : "")
+          })}
         </div>
       )}
 
