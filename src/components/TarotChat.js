@@ -263,7 +263,7 @@ const TarotChat = () => {
 
                       const shareData = await shareResponse.json();
                       const uuid = shareData.uuid;
-                      window.open(`/readings/${uuid}`, "_blank");
+                      window.location.replace(`/readings/${uuid}`);
                     } catch (error) {
                       console.error("Error generating summary:", error);
                     } finally {
