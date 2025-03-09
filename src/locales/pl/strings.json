@@ -6,7 +6,7 @@
     },
     "tarotChat": {
       "welcome": "Witamy w ✨ Mystic AI ✨ — Twoim portalu do ukrytych tajemnic! Zadaj pytanie, by otrzymać wskazówki na temat przyszłości, związków lub kariery. Twoje przeznaczenie czeka!",
-      "consultCards": "Czuję energię wokół twojego pytania. Pozwól, że skonsultuję się z kartami przy użyciu rozkładu trzech kart.",
+      "consultCards": "Czuję energię wokół twojego pytania. Pozwól, że skonsultuję się z tarotem przy użyciu rozkładu trzech kart.",
       "reading": "Odczytuję karty i łączę się z energiami...",
       "errorReading": "Nie jestem w stanie teraz zinterpretować kart. Połączenie duchowe jest niejasne.",
       "generating": "Generowanie...",

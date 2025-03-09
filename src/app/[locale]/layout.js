@@ -31,7 +31,6 @@ export default async function LocaleLayout({
 }) {
   // Ensure that the incoming `locale` is valid
   const {locale} = await params;
-  console.log(locale);
   if (!routing.locales.includes(locale)) {
     notFound();
   }
@@ -39,8 +38,6 @@ export default async function LocaleLayout({
   // Providing all messages to the client
   // side is the easiest way to get started
   const messages = await getMessages();
-
-  console.log(messages);
 
   return (
     <html lang={locale}>
