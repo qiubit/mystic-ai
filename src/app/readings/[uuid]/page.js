@@ -1,7 +1,5 @@
 "use client";
 
-import "../../../App.css";
-
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import TarotSummary from "../../../components/TarotSummary";
@@ -40,16 +38,24 @@ export default function ReadingPage() {
   }, [uuid]);
 
   if (loading) {
-    return <div className="summary-loading">Loading reading...</div>;
+    return (
+      <div className="flex justify-center items-center min-h-screen text-lg text-white bg-gradient-to-br from-[#0f0c29] via-[#302b63] to-[#24243e]">
+        Loading reading...
+      </div>
+    );
   }
 
   if (error) {
-    return <div className="summary-error">Error: {error}</div>;
+    return (
+      <div className="flex justify-center items-center min-h-screen text-lg text-white bg-gradient-to-br from-[#0f0c29] via-[#302b63] to-[#24243e]">
+        Error: {error}
+      </div>
+    );
   }
 
   // Use the TarotSummary component to render the reading
   return (
-    <div className="reading-container">
+    <div className="w-full min-h-screen bg-gradient-to-br from-[#0f0c29] via-[#302b63] to-[#24243e] text-white font-sans flex justify-center items-center py-8 px-4">
       <TarotSummary data={readingData} />
     </div>
   );

@@ -216,32 +216,34 @@ const TarotChat = () => {
                       const summaryData = await response.json();
 
                       // Add card images to the data
-                      const cardsWithImages = summaryData.cards.map((card) => {
-                        let imageUrl = "";
-                        if (card.title.includes("Past")) {
-                          imageUrl = messages
-                            .slice()
-                            .reverse()
-                            .find((m) => m.role === "cards")
-                            ?.cards[0]?.imageFlux;
-                        } else if (card.title.includes("Present")) {
-                          imageUrl = messages
-                            .slice()
-                            .reverse()
-                            .find((m) => m.role === "cards")
-                            ?.cards[1]?.imageFlux;
-                        } else {
-                          imageUrl = messages
-                            .slice()
-                            .reverse()
-                            .find((m) => m.role === "cards")
-                            ?.cards[2]?.imageFlux;
+                      const cardsWithImages = summaryData.cards.map(
+                        (card, index) => {
+                          let imageUrl = "";
+                          if (index === 0) {
+                            imageUrl = messages
+                              .slice()
+                              .reverse()
+                              .find((m) => m.role === "cards")
+                              ?.cards[0]?.imageFlux;
+                          } else if (index === 1) {
+                            imageUrl = messages
+                              .slice()
+                              .reverse()
+                              .find((m) => m.role === "cards")
+                              ?.cards[1]?.imageFlux;
+                          } else {
+                            imageUrl = messages
+                              .slice()
+                              .reverse()
+                              .find((m) => m.role === "cards")
+                              ?.cards[2]?.imageFlux;
+                          }
+                          return {
+                            ...card,
+                            image: imageUrl,
+                          };
                         }
-                        return {
-                          ...card,
-                          image: imageUrl,
-                        };
-                      });
+                      );
 
                       // Prepare complete data for sharing
                       const readingData = {
