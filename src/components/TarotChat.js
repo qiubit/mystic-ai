@@ -4,7 +4,9 @@ import { useTranslations } from 'next-intl';
 import TarotDeck from "./TarotDeck";
 import { determineSpread } from "../data/cards";
 import { useTarotReading } from "../services/api";
+import { v4 as uuidv4 } from "uuid";
 import icebreakers from "../data/icebreakers";
+import posthog from 'posthog-js';
 
 const TarotChat = () => {
   const t = useTranslations('tarotChat');
@@ -23,11 +25,13 @@ const TarotChat = () => {
   const [isReadingComplete, setIsReadingComplete] = useState(false);
   const [randomIcebreaker, setRandomIcebreaker] = useState(null);
   const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
+  const [currentId, setCurrentId] = useState(uuidv4());
   const messagesEndRef = useRef(null);
 
   const locale = window.location.pathname.split('/')[1];
 
-  const { generateReading, reading } = useTarotReading(locale, () => {
+  const { generateReading, reading } = useTarotReading(locale, (reading) => {
+    posthog.capture('mysticai_reading_generation_finish', { mystic_ai_id: currentId, mystic_ai_query: currentQuery, mystic_ai_reading: reading });
     setIsGeneratingReading(false);
     setIsReadingComplete(true);
   });
@@ -80,6 +84,9 @@ const TarotChat = () => {
 
     // Store the query for the reading
     setCurrentQuery(input);
+    const newId = uuidv4();
+    setCurrentId(newId);
+    posthog.capture('mysticai_query_submit', { mystic_ai_id: newId, mystic_ai_query: input });
     setInput("");
 
     // Determine spread type based on query
@@ -107,6 +114,8 @@ const TarotChat = () => {
   };
 
   const handleCardsSelected = async (selectedCards) => {
+    posthog.capture('mysticai_cards_selected', { mystic_ai_id: currentId, mystic_ai_query: currentQuery });
+
     setIsWaitingForCards(false);
 
     // Add card display message
@@ -129,6 +138,8 @@ const TarotChat = () => {
     ]);
 
     try {
+      posthog.capture('mysticai_reading_generation_start', { mystic_ai_id: currentId, mystic_ai_query: currentQuery });
+
       // Generate AI reading using the new hook
       await generateReading(selectedCards, currentSpreadType, currentQuery);
 
@@ -206,6 +217,7 @@ const TarotChat = () => {
                   onClick={async () => {
                     try {
                       setIsGeneratingSummary(true);
+                      posthog.capture('mysticai_reading_summary_start', { mystic_ai_id: currentId, mystic_ai_query: currentQuery });
                       const response = await fetch("/api/tarotSummary", {
                         method: "POST",
                         headers: {
@@ -214,8 +226,10 @@ const TarotChat = () => {
                         body: JSON.stringify({ reading, locale }),
                       });
                       const summaryData = await response.json();
+                      posthog.capture('mysticai_reading_summary_finish', { mystic_ai_id: currentId, mystic_ai_query: currentQuery, mystic_ai_summary: summaryData });
 
                       // Add card images to the data
+                      posthog.capture('mysticai_reading_summary_save_start', { mystic_ai_id: currentId, mystic_ai_query: currentQuery, mystic_ai_summary: summaryData });
                       const cardsWithImages = summaryData.cards.map(
                         (card, index) => {
                           let imageUrl = "";
@@ -262,6 +276,7 @@ const TarotChat = () => {
                       });
 
                       const shareData = await shareResponse.json();
+                      posthog.capture('mysticai_reading_summary_save_finish', { mystic_ai_id: currentId, mystic_ai_query: currentQuery, mystic_ai_share_data: shareData });
                       const uuid = shareData.uuid;
 
                       window.location.replace(`/${locale}/readings/${uuid}`);

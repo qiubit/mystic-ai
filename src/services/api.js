@@ -1,6 +1,7 @@
 import { useChat } from '@ai-sdk/react';
 import { useTranslations } from 'next-intl';
 
+
 // API endpoint will now be our own server endpoint
 const API_URL = "/api/tarotReading";
 
@@ -67,7 +68,9 @@ export function useTarotReading(locale, onFinish) {
     status,
   } = useChat({
     api: '/api/tarotReading',
-    onFinish
+    onFinish: (message) => {
+      onFinish(message.content);
+    }
   });
 
   const t = useTranslations('api');
