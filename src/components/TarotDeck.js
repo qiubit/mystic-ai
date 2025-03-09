@@ -1,15 +1,13 @@
 // TarotDeck.js - Component to handle card shuffling and selection animation
-import React, { useState, useEffect } from "react";
-import { shuffleCards } from "../data/cards";
+import React, { useState, useEffect, useRef } from "react";
+import { shuffleCards, tarotCards } from "../data/cards";
 
 const TarotDeck = ({ onCardsSelected, spreadType }) => {
   const [deck, setDeck] = useState([]);
   const [isShuffling, setIsShuffling] = useState(false);
   const [canSelect, setCanSelect] = useState(false);
   const [selectedCards, setSelectedCards] = useState([]);
-
-  // Number of cards to display for selection
-  const cardsToShow = 18;
+  const deckRef = useRef(null);
 
   // Number of cards to select based on spread type
   const cardsToSelect =
@@ -19,8 +17,8 @@ const TarotDeck = ({ onCardsSelected, spreadType }) => {
   useEffect(() => {
     // Start with all cards shuffled
     const allShuffled = shuffleCards();
-    // Only show the number of cards we want to display
-    setDeck(allShuffled.slice(0, cardsToShow));
+    // Use all cards
+    setDeck(allShuffled);
     setSelectedCards([]);
   }, [spreadType]);
 
@@ -32,7 +30,7 @@ const TarotDeck = ({ onCardsSelected, spreadType }) => {
     // Shuffle animation
     const shuffleInterval = setInterval(() => {
       const allShuffled = shuffleCards();
-      setDeck(allShuffled.slice(0, cardsToShow));
+      setDeck(allShuffled);
     }, 100);
 
     // Stop shuffling after 2 seconds
@@ -58,10 +56,23 @@ const TarotDeck = ({ onCardsSelected, spreadType }) => {
     }
   };
 
+  // Handle scroll navigation
+  const scrollLeft = () => {
+    if (deckRef.current) {
+      deckRef.current.scrollBy({ left: -200, behavior: 'smooth' });
+    }
+  };
+
+  const scrollRight = () => {
+    if (deckRef.current) {
+      deckRef.current.scrollBy({ left: 200, behavior: 'smooth' });
+    }
+  };
+
   return (
     <div className="tarot-deck-container">
-      {/* Shuffling button */}
-      {!isShuffling && selectedCards.length === 0 && (
+      {/* Shuffling button - only show before shuffling starts */}
+      {!isShuffling && !canSelect && selectedCards.length === 0 && (
         <button className="shuffle-button" onClick={startShuffling}>
           Shuffle the Deck
         </button>
@@ -71,28 +82,35 @@ const TarotDeck = ({ onCardsSelected, spreadType }) => {
       {isShuffling && <div className="status-message">Shuffling cards...</div>}
       {canSelect && (
         <div className="status-message">
-          Select {cardsToSelect} card{cardsToSelect > 1 ? "s" : ""} from the{" "}
-          {cardsToShow} presented
+          Select {cardsToSelect} card{cardsToSelect > 1 ? "s" : ""}
         </div>
       )}
 
-      {/* Card deck display */}
-      <div className="card-deck">
-        {deck.map((card) => (
-          <div
-            key={card.id}
-            className={`card ${isShuffling ? "shuffling" : ""} ${
-              selectedCards.includes(card) ? "selected" : ""
-            }`}
-            onClick={() => handleCardClick(card)}
-          >
-            {selectedCards.includes(card) ? (
-              <img src={card.imageFlux} alt={card.name} />
-            ) : (
-              <div className="card-back" />
-            )}
-          </div>
-        ))}
+      {/* Scrollable card deck display */}
+      <div className="deck-scroll-container">
+        <button className="deck-nav-button deck-prev" onClick={scrollLeft}>
+          ←
+        </button>
+        <div className="card-deck" ref={deckRef}>
+          {deck.map((card) => (
+            <div
+              key={card.id}
+              className={`card ${isShuffling ? "shuffling" : ""} ${
+                selectedCards.includes(card) ? "selected" : ""
+              }`}
+              onClick={() => handleCardClick(card)}
+            >
+              {selectedCards.includes(card) ? (
+                <img src={card.imageFlux} alt={card.name} />
+              ) : (
+                <div className="card-back" />
+              )}
+            </div>
+          ))}
+        </div>
+        <button className="deck-nav-button deck-next" onClick={scrollRight}>
+          →
+        </button>
       </div>
     </div>
   );
