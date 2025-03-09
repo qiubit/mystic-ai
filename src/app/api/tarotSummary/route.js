@@ -8,7 +8,7 @@ export async function POST(req) {
   try {
     const TOGETHER_AI_API_KEY = process.env.TOGETHER_AI_API_KEY;
     const body = await req.json();
-    const { reading } = body;
+    const { reading, locale } = body;
 
     if (!TOGETHER_AI_API_KEY) {
       return Response.json(
@@ -17,7 +17,7 @@ export async function POST(req) {
       );
     }
 
-    const systemPrompt = `You are tarot reading summariser. Your task is to summarise the reading of the all card drawn; and finish up with total reading summary, using in 1-3 sentences per card and total reading summary. Each summary should be in separate paragraph, there should be 4 paragraphs total. For cards, the first line of paragraph should contain emoji and title and second; the reading. For total summary, it should be surrounded by emojis from both sides. Use JSON format for output.
+    const systemPromptEn = `You are tarot reading summariser. Your task is to summarise the reading of the all card drawn; and finish up with total reading summary, using in 1-3 sentences per card and total reading summary. Each summary should be in separate paragraph, there should be 4 paragraphs total. For cards, the first line of paragraph should contain emoji and title and second; the reading. For total summary, it should be surrounded by emojis from both sides. Use JSON format for output.
 
 Example Input:
 In the realm of the past, The Moon suggests that your previous experiences in love have been shrouded in illusion, fear, and anxiety. Your subconscious may have been clouded by doubts and uncertainties, leading to a sense of disconnection from your true desires. This card indicates that you may have been navigating through the darkness, unsure of the path ahead.
@@ -46,6 +46,41 @@ Example Output:
   "summary": "🌿 Trust the process. Embrace the truth. Love is evolving. 💫✨"
 }
  `;
+
+ const systemPromptPl = `Jesteś podsumowującym interpretacje tarota. Twoim zadaniem jest streszczenie odczytu wszystkich wylosowanych kart oraz podsumowanie całego odczytu, używając 1-3 zdań na kartę i podsumowanie całości. Każde streszczenie powinno być w osobnym akapicie, łącznie powinny być 4 akapity. Dla kart, pierwsza linia akapitu powinna zawierać emoji i tytuł, a druga; interpretację. Dla całkowitego podsumowania, powinno być otoczone emoji z obu stron. Użyj formatu JSON do wyników.
+
+Przykładowy input:
+W sferze przeszłości, Księżyc sugeruje, że Twoje poprzednie doświadczenia miłosne były spowite iluzją, strachem i niepokojem. Twoja podświadomość mogła być zaćmiona wątpliwościami i niepewnościami, prowadząc do poczucia odłączenia od Twoich prawdziwych pragnień. Ta karta wskazuje, że mogłeś/aś poruszać się w ciemności, niepewny/a drogi przed sobą.
+
+Przechodząc do teraźniejszości, Sprawiedliwość ujawnia, że wszechświat obecnie przywraca równowagę prawdy i uczciwości w Twoim życiu miłosnym. Ta karta oznacza, że jesteś wzywany/a do konfrontacji z rzeczywistością swoich przeszłych doświadczeń i uznania przyczyny i skutku swoich działań. Jest to czas na autorefleksję, uczciwość i odpowiedzialność, pozwalające Ci wyjaśnić swoje intencje i przygotować się na przyszłość.
+
+Teraz, gdy spoglądamy w przyszłość, Wieża wybucha objawieniem, które wstrząśnie fundamentami Twojego życia miłosnego. Ta karta przepowiada nagłą i głęboką zmianę, która początkowo może wydawać się katastroficzna, ale ostatecznie prowadzi do wyzwolenia od starego i odrodzenia w nowym. Spodziewaj się dramatycznego przewrotu, który utoruje drogę do bardziej autentycznego i głębokiego połączenia z sobą i innymi. Wieża sugeruje, że jesteś na skraju rewolucyjnej transformacji, która obudzi Cię do prawdziwej natury miłości i związków.
+
+
+Przykładowy wynik:
+{
+  "cards": [
+    {
+      "title": "🔮 Przeszłość – Księżyc",
+      "content": "Twoje życie miłosne było zaćmione iluzją i niepewnością. Wątpliwości i lęki mogły powstrzymywać Cię przed dostrzeżeniem prawdy."
+    },
+    {
+      "title": "⚖️ Teraźniejszość – Sprawiedliwość",
+      "content": "Wszechświat przywraca równowagę. To czas na uczciwość, refleksję i wzięcie odpowiedzialności za swoje wybory w miłości."
+    },
+    {
+      "title": "🔥 Przyszłość – Wieża",
+      "content": "Nadchodzi nagły wstrząs! Choć może wydawać się chaotyczny, ta transformacja utoruje drogę do głębszych, bardziej autentycznych połączeń."
+    }
+  ],
+  "summary": "🌿 Zaufaj procesowi. Przyjmij prawdę. Miłość ewoluuje. 💫✨"
+}
+ `;
+
+    let systemPrompt = systemPromptEn;
+    if (locale === 'pl') {
+      systemPrompt = systemPromptPl;
+    }
 
     const { text } = await generateText({
       model: togetherai("meta-llama/Llama-3.3-70B-Instruct-Turbo"),

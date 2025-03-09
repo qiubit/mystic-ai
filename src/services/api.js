@@ -56,7 +56,7 @@ export const fetchReadingByUuid = async (uuid) => {
   }
 };
 
-export function useTarotReading(onFinish) {
+export function useTarotReading(locale, onFinish) {
   const {
     messages,
     setMessages,
@@ -88,6 +88,7 @@ export function useTarotReading(onFinish) {
           cards: formattedCards,
           spreadType,
           query,
+          locale,
         },
         allowEmptySubmit: true,
       },

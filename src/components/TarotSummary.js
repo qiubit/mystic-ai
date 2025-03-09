@@ -4,7 +4,7 @@ import { useTranslations } from 'next-intl';
 
 const TarotSummary = ({ data }) => {
   const t = useTranslations('tarotSummary');
-  
+
   if (!data || !data.cards) {
     return (
       <div className="flex justify-center items-center h-screen text-lg text-white bg-gradient-to-br from-[#0f0c29] via-[#302b63] to-[#24243e]">
@@ -12,8 +12,6 @@ const TarotSummary = ({ data }) => {
       </div>
     );
   }
-
-  console.log(data);
 
   return (
     <div

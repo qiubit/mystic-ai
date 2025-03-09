@@ -25,7 +25,9 @@ const TarotChat = () => {
   const [isGeneratingSummary, setIsGeneratingSummary] = useState(false);
   const messagesEndRef = useRef(null);
 
-  const { generateReading, reading } = useTarotReading(() => {
+  const locale = window.location.pathname.split('/')[1];
+
+  const { generateReading, reading } = useTarotReading(locale, () => {
     setIsGeneratingReading(false);
     setIsReadingComplete(true);
   });
@@ -33,11 +35,11 @@ const TarotChat = () => {
   // Get random icebreaker from each category
   const getIcebreakerSuggestions = () => {
     return icebreakers.map((category) => {
-      const randomIndex = Math.floor(Math.random() * category.questions.length);
+      const randomIndex = Math.floor(Math.random() * category.questions[locale].length);
       return {
         category: category.category,
         emoji: category.emoji,
-        question: category.questions[randomIndex],
+        question: category.questions[locale][randomIndex],
       };
     });
   };
@@ -209,7 +211,7 @@ const TarotChat = () => {
                         headers: {
                           "Content-Type": "application/json",
                         },
-                        body: JSON.stringify({ reading }),
+                        body: JSON.stringify({ reading, locale }),
                       });
                       const summaryData = await response.json();
 
@@ -262,7 +264,6 @@ const TarotChat = () => {
                       const shareData = await shareResponse.json();
                       const uuid = shareData.uuid;
 
-                      const locale = window.location.pathname.split('/')[1];
                       window.location.replace(`/${locale}/readings/${uuid}`);
                     } catch (error) {
                       console.error("Error generating summary:", error);
