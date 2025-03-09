@@ -57,7 +57,7 @@ Przechodząc do teraźniejszości, Sprawiedliwość ujawnia, że wszechświat ob
 Teraz, gdy spoglądamy w przyszłość, Wieża wybucha objawieniem, które wstrząśnie fundamentami Twojego życia miłosnego. Ta karta przepowiada nagłą i głęboką zmianę, która początkowo może wydawać się katastroficzna, ale ostatecznie prowadzi do wyzwolenia od starego i odrodzenia w nowym. Spodziewaj się dramatycznego przewrotu, który utoruje drogę do bardziej autentycznego i głębokiego połączenia z sobą i innymi. Wieża sugeruje, że jesteś na skraju rewolucyjnej transformacji, która obudzi Cię do prawdziwej natury miłości i związków.
 
 
-Przykładowy wynik:
+Przykładowy output:
 {
   "cards": [
     {
@@ -77,17 +77,69 @@ Przykładowy wynik:
 }
  `;
 
+ const retrySystemPrompt = `Put the input into valid JSON format. If the input is already in JSON format, return it as is. If the input is not in JSON format return it in JSON format.
+
+ Example Input:
+ 🔮 Przeszłość – Temperance
+Twoje serce szukało równowagi i harmonii w relacjach, ucząc się cierpliwości i szukania celu w swoich relacjach. Ta karta wskazuje, że twoja przeszłość była okresem uczenia się i przygotowania do przyszłych relacji.
+
+🌀 Teraźniejszość – The Hanged Man
+Twoje serce jest gotowe do poddania się nowej perspektywie i oświeceniu, musisz puścić stare wzorce i oczekiwania, aby móc doświadczyć nowego i zdrowszego związku. To karta, która mówi: "Zatrzymaj się, zobacz świat z innej strony i pozwól, aby twoje serce zostało oświecone".
+
+⚖️ Przyszłość – Justice
+Twoje serce spotka sprawiedliwość i prawdę w relacjach, twoje działania i decyzje będą miały konsekwencje, ale także będziesz nagradzany/a za twoją uczciwość i autentyczność. Ta karta mówi, że zdrowy związek jest możliwy, jeśli będziesz postępował/a zgodnie z twoim sercem i będziesz szukał/a prawdy w swoich relacjach.
+
+🌟🔮 Podsumowanie: 🌈 Zaufaj swojemu sercu i szukaj prawdy w relacjach. Przez równowagę, oświecenie i uczciwość, możesz przyciągnąć zdrowy związek. 🌟💫✨
+
+Example Output:
+{
+  "cards": [
+    {
+      "title": "🔮 Przeszłość – Temperance",
+      "content": "Twoje serce szukało równowagi i harmonii w relacjach, ucząc się cierpliwości i szukania celu w swoich relacjach. Ta karta wskazuje, że twoja przeszłość była okresem uczenia się i przygotowania do przyszłych relacji."
+    },
+    {
+      "title": "🌀 Teraźniejszość – The Hanged Man",
+      "content": "Twoje serce jest gotowe do poddania się nowej perspektywie i oświeceniu, musisz puścić stare wzorce i oczekiwania, aby móc doświadczyć nowego i zdrowszego związku. To karta, która mówi: "Zatrzymaj się, zobacz świat z innej strony i pozwól, aby twoje serce zostało oświecone."
+    },
+    {
+      "title": "⚖️ Przyszłość – Justice",
+      "content": "Twoje serce spotka sprawiedliwość i prawdę w relacjach, twoje działania i decyzje będą miały konsekwencje, ale także będziesz nagradzany/a za twoją uczciwość i autentyczność. Ta karta mówi, że zdrowy związek jest możliwy, jeśli będziesz postępował/a zgodnie z twoim sercem i będziesz szukał/a prawdy w swoich relacjach."
+    }
+  ],
+  "summary": "🌟🔮 Podsumowanie: 🌈 Zaufaj swojemu sercu i szukaj prawdy w relacjach. Przez równowagę, oświecenie i uczciwość, możesz przyciągnąć zdrowy związek. 🌟💫✨"
+}
+
+Only respond in JSON, avoid statements like "Here is the JSON:" or similar.
+ `
+
     let systemPrompt = systemPromptEn;
     if (locale === 'pl') {
       systemPrompt = systemPromptPl;
     }
 
-    const { text } = await generateText({
+    let ret = await generateText({
       model: togetherai("meta-llama/Llama-3.3-70B-Instruct-Turbo"),
       system: systemPrompt,
       prompt: reading,
     });
 
+    let shouldRetry = false;
+    try {
+      JSON.parse(ret.text);
+    } catch (error) {
+      shouldRetry = true;
+    }
+
+    if (shouldRetry) {
+      ret = await generateText({
+        model: togetherai("meta-llama/Llama-3.3-70B-Instruct-Turbo"),
+        system: retrySystemPrompt,
+        prompt: ret.text,
+      });
+    }
+
+    const { text } = ret;
     return NextResponse.json(JSON.parse(text));
   } catch (error) {
     console.error(error);
