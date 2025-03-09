@@ -30,5 +30,8 @@
     "readingPage": {
       "loading": "Wczytywanie wróżby...",
       "error": "Błąd: {message}"
+    },
+    "api": {
+        "waitingForCards": "Spoglądam na karty..."
     }
   }

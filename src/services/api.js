@@ -1,4 +1,5 @@
 import { useChat } from '@ai-sdk/react';
+import { useTranslations } from 'next-intl';
 
 // API endpoint will now be our own server endpoint
 const API_URL = "/api/tarotReading";
@@ -42,11 +43,11 @@ export const saveReadingToBlob = async (html) => {
 export const fetchReadingByUuid = async (uuid) => {
   try {
     const response = await fetch(`/api/fetchReading?uuid=${uuid}`);
-    
+
     if (!response.ok) {
       throw new Error('Failed to fetch reading');
     }
-    
+
     const data = await response.json();
     return data.html;
   } catch (error) {
@@ -68,6 +69,8 @@ export function useTarotReading(onFinish) {
     api: '/api/tarotReading',
     onFinish
   });
+
+  const t = useTranslations('api');
 
   const generateReading = async (cards, spreadType, query) => {
     // Format cards into a readable format for the prompt
@@ -94,7 +97,7 @@ export function useTarotReading(onFinish) {
   };
 
   return {
-    reading: messages[messages.length - 1]?.content || 'Looking into the cards...',
+    reading: messages[messages.length - 1]?.content || t('waitingForCards'),
     generateReading,
     error,
     status,
